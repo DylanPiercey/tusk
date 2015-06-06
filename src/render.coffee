@@ -40,7 +40,7 @@ module.exports = (node, htmlEntity)->
 		# Attempt to see if we can bootstrap off of existing dom.
 		unless html is htmlEntity.innerHTML
 			if htmlEntity.innerHTML.length
-				[server, client] = getDifference(html, htmlEntity.innerHTML)
+				[server, client] = getDifference(htmlEntity.innerHTML, html)
 				console.warn("""
 					Tusk: Could not bootstrap document, existing html and virtual html do not match.
 					Server: #{server}
