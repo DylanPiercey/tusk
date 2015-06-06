@@ -1,5 +1,5 @@
-Node          = require("./node")
-{ normalizeNode } = require("./util")
+Node                                  = require("./node")
+{ normalizeNode, normalizeComponent } = require("./util")
 
 module.exports =
 	###
@@ -13,12 +13,10 @@ module.exports =
 	# @returns {Node|NodeList}
 	###
 	createElement: (node, props = {}, children...)->
-		normalized = normalizeNode(node, props, children)
-
 		switch typeof node
-			when "string" then new Node(node, normalized)
-			when "object" then node.render(normalized)
-			when "function" then node(normalized)
+			when "string" then new Node(node, normalizeNode(node, props, children))
+			when "object" then node.render(normalizeComponent(props, children))
+			when "function" then node(normalizeComponent(props, children))
 
 	render:         require("./render")
 	renderToString: require("./renderToString")

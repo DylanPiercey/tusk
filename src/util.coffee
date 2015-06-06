@@ -87,7 +87,7 @@ util = module.exports =
 		props.class = util.parseClass(props.class) if props.class?
 		props.style = util.parseStyle(props.style) if props.style?
 
-		# Separate attrs from events and flatten them.
+		# Separate attrs from events and sanatize them.
 		for key, val of props
 			if key[0...2] is "on" then events[util.getEvent(key)] = val
 			else attrs[key] = util.escapeHTML(val)
@@ -101,5 +101,27 @@ util = module.exports =
 				else util.escapeHTML(child)
 			)
 		)
+
+		{ attrs, events, children }
+
+	###
+	# Utility to normalize a components props and children.
+	#
+	# @param {Object} props
+	# @param {Array} children
+	# @returns {Object}
+	###
+	normalizeComponent: (props, children)->
+		attrs       = {}
+		events      = {}
+		props.class = util.parseClass(props.class) if props.class?
+		props.style = util.parseStyle(props.style) if props.style?
+
+		# Separate attrs from events.
+		for key, val of props
+			if key[0...2] is "on" then events[util.getEvent(key)] = val
+			else attrs[key] = val
+
+		children = util.flatten(children)
 
 		{ attrs, events, children }
