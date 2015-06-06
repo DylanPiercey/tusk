@@ -37,7 +37,7 @@ getChildren = ({ attrs, children })->
 ###
 stringify = (node)->
 	if node.tag in selfClosing
-		"<#{node.tag + getAttrs(node)}/>"
+		"<#{node.tag + getAttrs(node)}>"
 	else
 		"<#{node.tag + getAttrs(node)}>#{getChildren(node)}</#{node.tag}>"
 
