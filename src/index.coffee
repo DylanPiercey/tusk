@@ -1,5 +1,5 @@
 Node          = require("./node")
-{ normalizeNode } = require("./util.coffee")
+{ normalizeNode } = require("./util")
 
 module.exports =
 	###
@@ -20,5 +20,5 @@ module.exports =
 			when "object" then node.render(normalized)
 			when "function" then node(normalized)
 
-	render:         require("./render.coffee")
-	renderToString: require("./renderToString.coffee")
+	render:         require("./render")
+	renderToString: require("./renderToString")

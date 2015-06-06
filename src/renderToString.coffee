@@ -1,5 +1,5 @@
-Node                        = require("./node.coffee")
-{ escapeHTML, selfClosing } = require("./util.coffee")
+Node                        = require("./node")
+{ escapeHTML, selfClosing } = require("./util")
 
 ###
 # Utility to convert an object of properties to a string of html attributes.

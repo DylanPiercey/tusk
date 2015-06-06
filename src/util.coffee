@@ -1,4 +1,4 @@
-Node = require("./node.coffee")
+Node = require("./node")
 
 util = module.exports =
 	# List of self closing html tags.
