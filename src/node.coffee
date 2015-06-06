@@ -64,6 +64,8 @@ class Node
 		@_element.setAttribute(key, val) for key, val of newNode.attrs when val isnt @attrs[key]
 		# Remove old attrs.
 		@_element.removeAttribute(key) for key of @attrs when not newNode.attrs[key]?
+		# Update attrs
+		@attrs = newNode.attrs
 
 		# Attach new events
 		for key, val of newNode.events when val isnt @events[key]
@@ -74,9 +76,11 @@ class Node
 
 		# Remove old events
 		@_element.removeEventListener(key, val) for key of @events when not newNode.events[key]?
+		# Update Events
+		@events = newNode.events
 
 		# Update child nodes.
-		for i in [0...Math.max(@children.length, newNode.children.length)]
+		@children = (for i in [0...Math.max(@children.length, newNode.children.length)]
 			child          = @children[i]
 			newChild       = newNode.children[i]
 			childElement   = @_element.childNodes[i]
@@ -93,16 +97,17 @@ class Node
 					# Force non-nodes to strings.
 					else document.createTextNode(newChild)
 				), childElement)
+				newChild
 
 			# Append new node if there was no old node.
 			else if newChild?
-				@children.push(newChild)
 				@_element.appendChild(
 					# Recursively create child node.
 					if newChild instanceof Node then newChild.create()
 					# Force non-nodes to strings.
 					else document.createTextNode(newChild)
 				)
+				newChild
 
 			# Must delete child if there was no new child.
 			else if child?
@@ -110,9 +115,9 @@ class Node
 				# Remove dead event listeners
 				for key, val of child.attrs when key[0...2] is "on"
 					childElement.removeEventListener(getEvent(key), val)
+				continue
+		)
 
-		# Update References
-		{ @attrs, @events, @children } = newNode
 		return this
 
 module.exports = Node
