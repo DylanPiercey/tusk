@@ -33,23 +33,25 @@ module.exports = (node, htmlEntity)->
 
 	# Chech if this node has been rendered before, if not then attempt to bootstrap.
 	if -1 is index
-		html = renderToString(node)
 		cache.node.push(node)
 		cache.entity.push(htmlEntity)
+		html = renderToString(node)
+		root = (
+			if htmlEntity.tagName is "HTML" then htmlEntity
+			else htmlEntity.childNodes[0]
+		)
 
 		# Attempt to see if we can bootstrap off of existing dom.
-		unless html is htmlEntity.innerHTML
-			if htmlEntity.innerHTML.length
-				[server, client] = getDifference(htmlEntity.innerHTML, html)
+		unless html is root.outerHTML
+			if htmlEntity.outerHTML.length
+				[server, client] = getDifference(root.innerHTML, html)
 				console.warn("""
 					Tusk: Could not bootstrap document, existing html and virtual html do not match.
 					Server: #{server}
 					Client: #{client}
 				""")
-
 			htmlEntity.innerHTML = html
-
-		node.bootstrap(htmlEntity.childNodes[0])
+		node.bootstrap(root)
 		return
 
 	# Ensure that only the most recent frame is ever ran.
