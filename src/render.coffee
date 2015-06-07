@@ -13,12 +13,12 @@ frame = null
 ###
 getDifference = (a, b)->
 	break for char, i in a when char isnt b[i]
-	start = Math.min(0, i - 30)
-	end   = start + 30
+	start = Math.max(0, i - 50)
+	end   = start + 50
 
 	[
-		a[start...Math.max(end, a.length)]
-		b[start...Math.max(end, b.length)]
+		a[start...Math.min(end, a.length)]
+		b[start...Math.min(end, b.length)]
 	]
 
 ###
@@ -43,12 +43,16 @@ module.exports = (node, htmlEntity)->
 
 		# Attempt to see if we can bootstrap off of existing dom.
 		unless html is root.outerHTML
-			if htmlEntity.outerHTML.length
+			if root.outerHTML.length
 				[server, client] = getDifference(root.outerHTML, html)
 				console.warn("""
 					Tusk: Could not bootstrap document, existing html and virtual html do not match.
-					Server: #{server}
-					Client: #{client}
+
+					Server:
+					#{server}
+
+					Client:
+					#{client}
 				""")
 			htmlEntity.innerHTML = html
 		node.bootstrap(root)
