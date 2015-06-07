@@ -41,9 +41,11 @@ module.exports = (node, htmlEntity)->
 			else htmlEntity.childNodes[0]
 		)
 
+		if html is root?.outerHTML
+			node.bootstrap(root)
 		# Attempt to see if we can bootstrap off of existing dom.
-		unless html is root.outerHTML
-			if root.outerHTML.length
+		else
+			if root?
 				[server, client] = getDifference(root.outerHTML, html)
 				console.warn("""
 					Tusk: Could not bootstrap document, existing html and virtual html do not match.
@@ -55,7 +57,6 @@ module.exports = (node, htmlEntity)->
 					#{client}
 				""")
 			htmlEntity.innerHTML = html
-		node.bootstrap(root)
 		return
 
 	# Ensure that only the most recent frame is ever ran.
