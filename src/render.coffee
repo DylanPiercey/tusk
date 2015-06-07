@@ -1,8 +1,8 @@
 renderToString = require("./renderToString")
 
 # Store dom and root nodes.
-cache = node: [], entity: []
-frame = null
+cache  = node: [], entity: []
+frames = {}
 
 ###
 # Returns a chunk surrounding the difference between two strings, useful for debugging.
@@ -13,8 +13,8 @@ frame = null
 ###
 getDifference = (a, b)->
 	break for char, i in a when char isnt b[i]
-	start = Math.max(0, i - 50)
-	end   = start + 50
+	start = Math.max(0, i - 20)
+	end   = start + 80
 
 	[
 		a[start...Math.min(end, a.length)]
@@ -28,12 +28,17 @@ getDifference = (a, b)->
 # @param {Node} node
 ###
 module.exports = (node, htmlEntity)->
-	raf = require("component-raf")
+	raf   = require("component-raf")
+	index = cache.entity.indexOf(htmlEntity)
+	id    = (
+		if index is -1 then cache.entity.length
+		else index
+	)
+
 	# Ensure that only the most recent frame is ever ran.
-	raf.cancel(frame) if frame?
-	frame = raf(->
-		frame = null
-		index = cache.entity.indexOf(htmlEntity)
+	raf.cancel(frames[id]) if frames[id]?
+	frames[id] = raf(->
+		delete frames[id]
 		# Chech if this node has been rendered before, if not then attempt to bootstrap.
 		if -1 is index
 			cache.node.push(node)
