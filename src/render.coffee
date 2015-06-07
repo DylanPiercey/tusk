@@ -55,7 +55,7 @@ module.exports = (node, htmlEntity)->
 					#{client}
 				""")
 			htmlEntity.innerHTML = html
-		node.bootstrap(root)
+		node.bootstrap(htmlEntity.childNodes[0])
 		return
 
 	# Ensure that only the most recent frame is ever ran.
