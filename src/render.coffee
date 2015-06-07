@@ -22,6 +22,17 @@ getDifference = (a, b)->
 	]
 
 ###
+# Returns the root node for an element (this is different for root entity).
+#
+# @params {HTMLEntity} entity
+# @returns {HTMLEntity}
+###
+getRoot = (entity)->
+	if entity.tagName is "HTML" then entity
+	else entity.childNodes[0]
+
+
+###
 # Render a virtual node onto a real document node.
 #
 # @param {HTMLEntity} htmlEntity
@@ -36,10 +47,7 @@ module.exports = (node, htmlEntity)->
 		cache.node.push(node)
 		cache.entity.push(htmlEntity)
 		html = renderToString(node)
-		root = (
-			if htmlEntity.tagName is "HTML" then htmlEntity
-			else htmlEntity.childNodes[0]
-		)
+		root = getRoot(htmlEntity)
 
 		# Attempt to see if we can bootstrap off of existing dom.
 		unless html is root?.outerHTML
@@ -55,7 +63,7 @@ module.exports = (node, htmlEntity)->
 					#{client}
 				""")
 			htmlEntity.innerHTML = html
-		node.bootstrap(htmlEntity.childNodes[0])
+		node.bootstrap(getRoot(htmlEntity))
 		return
 
 	# Ensure that only the most recent frame is ever ran.
