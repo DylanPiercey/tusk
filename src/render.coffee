@@ -41,10 +41,8 @@ module.exports = (node, htmlEntity)->
 			else htmlEntity.childNodes[0]
 		)
 
-		if html is root?.outerHTML
-			node.bootstrap(root)
 		# Attempt to see if we can bootstrap off of existing dom.
-		else
+		unless html is root?.outerHTML
 			if root?
 				[server, client] = getDifference(root.outerHTML, html)
 				console.warn("""
@@ -57,6 +55,7 @@ module.exports = (node, htmlEntity)->
 					#{client}
 				""")
 			htmlEntity.innerHTML = html
+		node.bootstrap(root)
 		return
 
 	# Ensure that only the most recent frame is ever ran.
