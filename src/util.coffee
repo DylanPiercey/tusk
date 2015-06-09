@@ -1,12 +1,4 @@
-Node = require("./node")
-
 util = module.exports =
-	# List of self closing html tags.
-	selfClosing: [
-		"area", "base", "br", "col", "command", "embed", "hr", "img", "input",
-		"keygen", "link", "meta", "param", "source", "track", "wbr"
-	]
-
 	###
 	# Utility to transform a string like "onDblClick" to "dblClick"
 	#
@@ -14,6 +6,33 @@ util = module.exports =
 	# @returns {String}
 	###
 	getEvent: (str)-> str[2...3].toLowerCase() + str[3..]
+
+	###
+	# Returns the root node for an element (this is different for root entity).
+	#
+	# @params {HTMLEntity} entity
+	# @returns {HTMLEntity}
+	###
+	getRoot: (entity)->
+		if entity.tagName is "HTML" then entity
+		else entity.childNodes[0]
+
+	###
+	# Returns a chunk surrounding the difference between two strings, useful for debugging.
+	#
+	# @param {String} a
+	# @param {String} b
+	# @returns {Array<String>}
+	###
+	getDiff: (a, b)->
+		break for char, i in a when char isnt b[i]
+		start = Math.max(0, i - 20)
+		end   = start + 80
+
+		[
+			a[start...Math.min(end, a.length)]
+			b[start...Math.min(end, b.length)]
+		]
 
 	###
 	# Utility to recursively flatten a nested array.
@@ -44,84 +63,3 @@ util = module.exports =
 			.replace(/'/g, "&#39;")
 			.replace(/</g, "&lt;")
 			.replace(/>/g, "&gt;")
-
-	###
-	# Parse the class attribute so it's able to be
-	# set in a more user-friendly way
-	#
-	# @param {String|Object|Array} obj
-	# @return {String}
-	###
-	parseClass: (obj)->
-		if Array.isArray(obj)
-			return unless obj.length
-			return obj.join(" ")
-		else if typeof val is "object"
-			return util.parseClass(key for key, val of obj when val)
-		return obj
-
-	###
-	# Parse a block of styles into a string.
-	#
-	# @param {Object} styles
-	# @return {String}
-	###
-	parseStyle: (obj)->
-		return obj if typeof obj is "string"
-		result = ""
-		result += "#{key}:#{val};" for key, val of obj
-		result
-
-	###
-	# Utility to normalize a nodes props and children.
-	#
-	# @param {String} tag
-	# @param {Object} props
-	# @param {Array} children
-	# @returns {Object}
-	###
-	normalizeNode: (tag, props, children)->
-		attrs       = {}
-		events      = {}
-		innerHTML   = props.innerHTML; delete props.innerHTML
-		props.class = util.parseClass(props.class) if props.class?
-		props.style = util.parseStyle(props.style) if props.style?
-
-		# Separate attrs from events and sanatize them.
-		for key, val of props
-			if key[0...2] is "on" then events[util.getEvent(key)] = val
-			else attrs[key] = util.escapeHTML(val)
-
-		# Sanatize and flatten children.
-		children = (
-			if tag in util.selfClosing then []
-			else if innerHTML? then [innerHTML]
-			else (for child in util.flatten(children)
-				if child instanceof Node then child
-				else util.escapeHTML(child)
-			)
-		)
-
-		{ attrs, events, children }
-
-	###
-	# Utility to normalize a components props and children.
-	#
-	# @param {Object} props
-	# @param {Array} children
-	# @returns {Object}
-	###
-	normalizeComponent: (props, children)->
-		attrs       = {}
-		events      = {}
-		props.class = util.parseClass(props.class) if props.class?
-		props.style = util.parseStyle(props.style) if props.style?
-
-		# Separate attrs from events.
-		for key, val of props
-			if key[0...2] is "on" then events[util.getEvent(key)] = val
-			else attrs[key] = val
-
-		children = util.flatten(children)
-
-		{ attrs, events, children }

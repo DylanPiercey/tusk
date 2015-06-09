@@ -26,21 +26,20 @@ npm install tusk
 /** @jsx tusk */
 let tusk = require('tusk');
 
-let MyInput = {
-    handleClick(e) {
-        alert(e.target.value);
-    },
-    render(component) {
-        let { attrs, events, children } = component;
-        <input type={ attrs.type } onClick={ MyComponent.handleClick }/>
-    }
-};
+function MyInput (component) {
+    let { attrs, events, children } = component;
+    <input type={ attrs.type } onClick={ MyComponent.handleClick }/>
+}
+
+function handleClick (e) {
+    alert(e.target.value);
+}
 
 // Render into the browser.
 tusk.render(<MyInput type="text"/>, document.body);
 
 // Render into a string.
-let HTML = tusk.renderToString(<MyInput type="text"/>)
+let HTML = (<MyInput type="text"/>).toString()
 ```
 
 # API
@@ -50,22 +49,15 @@ let HTML = tusk.renderToString(<MyInput type="text"/>)
     tusk.render(<div>Hello World</div>, document.body);
     ```
 
-+ **renderToString(component)** : Create a string representation of a virtual `component`.
-
-    ```javascript
-    let html = tusk.renderToString(<div>Hello World</div>);
-    html; // "<div>Hello World</div>"
-    ```
-
 + **createElement(type, props, children...)** : Create a virtual node/component (Automatically called when using JSX).
 
     ```javascript
     let vNode = tusk.createElement("div", { editable: true }, "Hello World");
     let html = tusk.renderToString(vNode);
-    html; // '<div editable="true">Hello World</div>'
+    vNode.toString(); // '<div editable="true">Hello World</div>'
 
     /**
-     * @params type can also be an object with a render function or a plain function.
+     * @params type can also be a function that returns nodes.
      */
     ```
 

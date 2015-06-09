@@ -1,15 +1,14 @@
 # @cjsx tusk
-should                     = require("should")
-details                    = require("../package.json")
-tusk                       = require("../src/index")
-{ render, renderToString } = tusk
+should  = require("should")
+details = require("../package.json")
+tusk    = require("../src/index")
 
 describe "#{details.name}@#{details.version} - API", ->
 	require("mocha-jsdom")()
 
 	describe "Virtual component", ->
 		it "should be able to create", ->
-			ChildComponent = ({ attrs: { value }, children })->
+			ChildComponent = ({ attrs, children })->
 				<h1>{for child, i in children
 					child.attrs.class = "child-#{i}"
 					child
@@ -22,7 +21,7 @@ describe "#{details.name}@#{details.version} - API", ->
 					}</ChildComponent>
 				</div>
 
-			renderToString(<MyComponent value={ 5 }/>).should.equal(
+			(<MyComponent value={ 5 }/>).toString().should.equal(
 				"""
 				<div>
 					<h1>
@@ -40,10 +39,10 @@ describe "#{details.name}@#{details.version} - API", ->
 	describe "Document Component", ->
 		it "should be able to bootstrap existing dom", ->
 			div  = document.createElement("div")
-			html = div.innerHTML = renderToString(<div/>)
+			html = div.innerHTML = String(<div/>)
 			root = div.childNodes[0]
 
-			render(<div/>, div)
+			tusk.render(<div/>, div)
 
 			div.should.have.properties(
 				innerHTML: "<div></div>"

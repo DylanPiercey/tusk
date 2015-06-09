@@ -1,6 +1,6 @@
 {
   "name": "tusk",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "description": "A slim virtual dom implementation.",
   "author": "Dylan Piercey <pierceydylan@gmail.com>",
   "main": "lib/index.js",
@@ -33,6 +33,7 @@
     "should": "^6.0.1"
   },
   "dependencies": {
-    "component-raf": "^1.2.0"
+    "component-raf": "^1.2.0",
+    "is-dom": "^1.0.5"
   }
 }

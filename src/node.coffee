@@ -1,14 +1,36 @@
+{ flatten, escapeHTML, getEvent } = require("./util")
+selfClosing = [
+	"area", "base", "br", "col", "command", "embed", "hr", "img", "input",
+	"keygen", "link", "meta", "param", "source", "track", "wbr"
+]
+
 class Node
 	###
 	# Creates a virtual dom node that can be later transformed into a real node and updated.
 	# @param {String} tag
-	# @param {Object} options
-	# @param {Object} options.attrs
-	# @param {Object} options.events
-	# @param {Array} options.children
+	# @param {Object} props
+	# @param {Array} children
 	# @constructor
 	###
-	constructor: (@tag, { @attrs, @events, @children })->
+	constructor: (@tag, props, children)->
+		@attrs    = attrs = {}
+		@events   = events = {}
+		innerHTML = props.innerHTML; delete props.innerHTML
+
+		# Separate attrs from events and sanatize them.
+		for key, val of props
+			if key[0...2] is "on" then events[getEvent(key)] = val
+			else attrs[key] = escapeHTML(val)
+
+		# Sanatize and flatten children.
+		@children = (
+			if @tag in selfClosing then []
+			else if innerHTML? then [innerHTML]
+			else (for child in flatten(children)
+				if child instanceof Node then child
+				else escapeHTML(child)
+			)
+		)
 
 	###
 	# Creates a real node out of the virtual node and returns it.
@@ -120,4 +142,19 @@ class Node
 
 		return this
 
-module.exports = Node
+	###
+	# Override node's toString to generate valid html.
+	#
+	# @returns {String}
+	###
+	toString: ->
+		attrs = ""
+		attrs += " #{key}=\"#{val}\"" for key, val of @attrs
+
+		if @tag in selfClosing
+			"<#{@tag + attrs}>"
+		else
+			"<#{@tag + attrs}>#{@children.join("")}</#{@tag}>"
+
+
+module.exports  = Node
