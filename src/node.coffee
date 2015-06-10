@@ -92,7 +92,7 @@ class Node
 		# Attach new events
 		for key, val of newNode.events when val isnt @events[key]
 			# Remove old event listener if needed.
-			@_element.removeEventListener(key, @attrs[key]) if @attrs[key]
+			@_element.removeEventListener(key, @events[key]) if @events[key]?
 			# Add new event listener.
 			@_element.addEventListener(key, val)
 
