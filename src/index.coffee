@@ -49,6 +49,8 @@ module.exports =
 			root     = getRoot(entity)
 			curHTML  = String(node)
 			prevHTML = root?.outerHTML
+			cache.entity.push(entity)
+			cache.node.push(node)
 
 			# Attempt to see if we can bootstrap off of existing dom.
 			unless curHTML is prevHTML
