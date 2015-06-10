@@ -97,7 +97,7 @@ class Node
 			@_element.addEventListener(key, val)
 
 		# Remove old events
-		@_element.removeEventListener(key, val) for key of @events when not newNode.events[key]?
+		@_element.removeEventListener(key, val) for key, val of @events when not newNode.events[key]?
 		# Update Events
 		@events = newNode.events
 
