@@ -1,6 +1,6 @@
 isDOM = require("is-dom")
 Node  = require("./node")
-{ getRoot, getDiff, flatten } = require("./util")
+{ getRoot, getDiff, normalize } = require("./util")
 
 # Store dom and root nodes.
 cache  = node: [], entity: []
@@ -13,23 +13,15 @@ module.exports =
 	# If the given node is a string then the resulting virtual node will be an html element with a tagname of that string.
 	# 	IE: "div" -> <div></div>
 	#
-	# @param {String|Function} node
+	# @param {String|Function} type
 	# @param {Object} props
 	# @param {Array} children
 	# @returns {Node|NodeList}
 	###
-	createElement: (node, props = {}, children...)->
-		switch typeof node
-			when "function"
-				attrs    = {}
-				events   = {}
-				children = flatten(children)
-				# Separate attrs from events and sanatize them.
-				for key, val of props
-					if key[0...2] is "on" then events[getEvent(key)] = val
-					else attrs[key] = val
-				node({ attrs, events, children })
-			when "string" then new Node(node, props, children)
+	createElement: (type, props = {}, children...)->
+		switch typeof type
+			when "function" then type(normalize(type, props, children))
+			when "string" then new Node(normalize(type, props, children))
 			else throw new Error("Tusk: Invalid virtual node type.")
 
 	###
@@ -41,8 +33,8 @@ module.exports =
 	render: (node, entity)->
 		throw new Error("Tusk: A virtual node is required.") unless node instanceof Node
 		throw new Error("Tusk: Container must be a DOM element.") unless isDOM(entity)
-		raf      = require("component-raf")
-		index    = cache.entity.indexOf(entity)
+		raf   = require("component-raf")
+		index = cache.entity.indexOf(entity)
 
 		# Check if this entity has been rendered into before.
 		if -1 is index

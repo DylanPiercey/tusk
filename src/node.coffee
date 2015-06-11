@@ -1,36 +1,19 @@
-{ flatten, escapeHTML, getEvent } = require("./util")
-selfClosing = [
-	"area", "base", "br", "col", "command", "embed", "hr", "img", "input",
-	"keygen", "link", "meta", "param", "source", "track", "wbr"
-]
+{ escapeHTML, selfClosing } = require("./util")
 
 class Node
 	###
 	# Creates a virtual dom node that can be later transformed into a real node and updated.
-	# @param {String} tag
-	# @param {Object} props
-	# @param {Array} children
+	# @param {String} options.type
+	# @param {Object} options.attrs
+	# @param {Object} options.events
+	# @param {Array} options.children
 	# @constructor
 	###
-	constructor: (@tag, props, children)->
-		@attrs    = attrs = {}
-		@events   = events = {}
-		innerHTML = props.innerHTML; delete props.innerHTML
-
-		# Separate attrs from events and sanatize them.
-		for key, val of props
-			if key[0...2] is "on" then events[getEvent(key)] = val
-			else attrs[key] = escapeHTML(val)
-
-		# Sanatize and flatten children.
-		@children = (
-			if @tag in selfClosing then []
-			else if innerHTML? then [innerHTML]
-			else (for child in flatten(children)
-				if child instanceof Node then child
-				else escapeHTML(child)
-			)
-		)
+	constructor: ({ @type, @attrs, @events, @children })->
+		# Sanatize attributes.
+		@attrs[key] = escapeHTML(val) for key, val of @attrs
+		# Sanatize text nodes.
+		@children[i] = escapeHTML(child ? "") for child, i in @children when not (child instanceof Node)
 
 	###
 	# Creates a real node out of the virtual node and returns it.
@@ -39,19 +22,10 @@ class Node
 	###
 	create: ->
 		# Create a real dom element.
-		@_element = document.createElement(@tag)
-		# Set attributes.
-		@_element.setAttribute(key, val) for key, val of @attrs
-		# Attach event handlers.
-		@_element.addEventListener(key, val) for key, val of @events
-		# Append children.
-		@_element.appendChild(
-			# Recursively create child node.
-			if child instanceof Node then child.create()
-			# Force non-nodes to strings.
-			else document.createTextNode(child)
-		) for child in @children
-		# Return created element.
+		@_element = document.createElement(@type)
+		setAttrs(@)
+		setEvents(@)
+		setChildren(@)
 		@_element
 
 	###
@@ -63,10 +37,16 @@ class Node
 	bootstrap: (element)->
 		@_element = { childNodes } = element
 		# Attach event handlers.
-		@_element.addEventListener(key, val) for key, val of @events
+		setEvents(@)
 		# Boostrap children.
-		child.bootstrap(childNodes[i]) for child, i in @children when child instanceof Node
-		# Return given element.
+		for child, i in @children
+			node = childNodes[i]
+			if child instanceof Node
+				# Recursive bootstrap child.
+				child.bootstrap(node)
+			else if node.nodeValue isnt child
+				# Use Text.splitText(index) to split up text-nodes from server.
+				child.splitText(node.nodeValue.indexOf(child) + child.length)
 		@_element
 
 	###
@@ -75,71 +55,16 @@ class Node
 	# @param {Node} newNode
 	###
 	update: (newNode)->
-		# Update tagName requires a re-render.
-		if @tag isnt newNode.tag
+		# Update type requires a re-render.
+		if @type isnt newNode.type
 			@_element.parentNode.replaceChild(newNode.create(), @_element)
 			@_element = newNode._element
-			{ @tag, @attrs, @events, @children } = newNode
+			{ @type, @attrs, @events, @children } = newNode
 			return this
 
-		# Append new attrs.
-		@_element.setAttribute(key, val) for key, val of newNode.attrs when val isnt @attrs[key]
-		# Remove old attrs.
-		@_element.removeAttribute(key) for key of @attrs when not newNode.attrs[key]?
-		# Update attrs
-		@attrs = newNode.attrs
-
-		# Attach new events
-		for key, val of newNode.events when val isnt @events[key]
-			# Remove old event listener if needed.
-			@_element.removeEventListener(key, @events[key]) if @events[key]?
-			# Add new event listener.
-			@_element.addEventListener(key, val)
-
-		# Remove old events
-		@_element.removeEventListener(key, val) for key, val of @events when not newNode.events[key]?
-		# Update Events
-		@events = newNode.events
-
-		# Update child nodes.
-		@children = (for i in [0...Math.max(@children.length, newNode.children.length)]
-			child          = @children[i]
-			newChild       = newNode.children[i]
-			childElement   = @_element.childNodes[i]
-
-			# If both are nodes, then a simple recursive update will work.
-			if child instanceof Node and newChild instanceof Node
-				child.update(newChild)
-
-			# Replace node with new node.
-			else if child? and newChild?
-				@_element.replaceChild((
-					# Recursively create child node.
-					if newChild instanceof Node then newChild.create()
-					# Force non-nodes to strings.
-					else document.createTextNode(newChild)
-				), childElement)
-				newChild
-
-			# Append new node if there was no old node.
-			else if newChild?
-				@_element.appendChild(
-					# Recursively create child node.
-					if newChild instanceof Node then newChild.create()
-					# Force non-nodes to strings.
-					else document.createTextNode(newChild)
-				)
-				newChild
-
-			# Must delete child if there was no new child.
-			else if child?
-				@_element.removeChild(childElement)
-				# Remove dead event listeners
-				for key, val of child.attrs when key[0...2] is "on"
-					childElement.removeEventListener(getEvent(key), val)
-				continue
-		)
-
+		setAttrs(@, newNode.attrs)
+		setEvents(@, newNode.events)
+		setChildren(@, newNode.children)
 		return this
 
 	###
@@ -150,11 +75,111 @@ class Node
 	toString: ->
 		attrs = ""
 		attrs += " #{key}=\"#{val}\"" for key, val of @attrs
+		if @type in selfClosing then "<#{@type + attrs}>"
+		else "<#{@type + attrs}>#{@children.join("")}</#{@type}>"
 
-		if @tag in selfClosing
-			"<#{@tag + attrs}>"
-		else
-			"<#{@tag + attrs}>#{@children.join("")}</#{@tag}>"
+###
+# Begin Diffing Utilities
+###
 
+###
+# Utility to cast a virtual node into a dom node.
+#
+# @params {Node|String} node
+###
+getElement = (node)->
+	# Recursively create child node.
+	if node instanceof Node then node._element or node.create()
+	# Force non-nodes to strings.
+	else document.createTextNode(node)
+
+###
+# Utility that will update or set a given virtual nodes attributes.
+#
+# @params {Node} node
+# @params {Object} updated?
+###
+setAttrs = (node, updated)->
+	{ _element, attrs } = node
+
+	if updated
+		node.attrs = updated
+	else
+		updated = attrs
+		attrs = {}
+
+	# Append new attrs.
+	_element.setAttribute(key, val) for key, val of updated when val isnt attrs[key]
+	# Remove old attrs.
+	_element.removeAttribute(key) for key of attrs when not updated[key]?
+	return
+
+###
+# Utility that will update or set a given virtual nodes event listeners.
+#
+# @params {Node} node
+# @params {Object} updated?
+###
+setEvents = (node, updated)->
+	{ _element, events } = node
+
+	if updated
+		node.events = updated
+	else
+		updated = events
+		events = {}
+
+	# Attach new events
+	for key, val of updated when val isnt events[key]
+		# Remove old event listener if needed.
+		_element.removeEventListener(key, events[key]) if key of events
+		# Add new event listener.
+		_element.addEventListener(key, val)
+
+	# Remove old events
+	_element.removeEventListener(key, val) for key, val of events when not updated[key]?
+	return
+
+###
+# Utility that will update or set a given virtual nodes children.
+#
+# @params {Node} node
+# @params {Object} updated?
+# @returns {Node}
+###
+setChildren = (node, updated)->
+	{ _element, children } = node
+
+	unless updated
+		updated = children
+		children = []
+
+	node.children = (for i in [0...Math.max(children.length, updated.length)]
+		child        = children[i]
+		newChild     = updated[i]
+		childElement = _element.childNodes[i]
+
+		# If both are nodes, then a simple recursive update will work.
+		if child instanceof Node and newChild instanceof Node
+			child.update(newChild)
+
+		# Replace node with new node.
+		else if child? and newChild?
+			_element.replaceChild(getElement(newChild), childElement)
+			newChild
+
+		# Append new node if there was no old node.
+		else if newChild?
+			_element.appendChild(getElement(newChild))
+			newChild
+
+		# Must delete child if there was no new child.
+		else if child?
+			# Remove dead event listeners
+			setEvents(child, {})
+			_element.removeChild(childElement)
+			continue
+	)
+	return
 
 module.exports  = Node

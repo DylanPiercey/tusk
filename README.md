@@ -53,8 +53,7 @@ let HTML = (<MyInput type="text"/>).toString()
 
     ```javascript
     let vNode = tusk.createElement("div", { editable: true }, "Hello World");
-    let html = tusk.renderToString(vNode);
-    vNode.toString(); // '<div editable="true">Hello World</div>'
+    vNode.toString(); // '<div editable="true">Hello World</div>';
 
     /**
      * @params type can also be a function that returns nodes.

@@ -1,4 +1,9 @@
 util = module.exports =
+	selfClosing: [
+		"area", "base", "br", "col", "command", "embed", "hr", "img", "input",
+		"keygen", "link", "meta", "param", "source", "track", "wbr"
+	]
+
 	###
 	# Utility to transform a string like "onDblClick" to "dblClick"
 	#
@@ -63,3 +68,29 @@ util = module.exports =
 			.replace(/'/g, "&#39;")
 			.replace(/</g, "&lt;")
 			.replace(/>/g, "&gt;")
+
+	###
+	# Utility to separate out attrs and events and normalize children.
+	#
+	# @params {String|Function} type
+	# @params {Object} props
+	# @params {Array} children
+	###
+	normalize: (type, props, children)->
+		innerHTML = props.innerHTML; delete props.innerHTML
+		attrs     = {}
+		events    = {}
+
+		# Separate attrs from events and sanatize them.
+		for key, val of props
+			if key[0...2] is "on" then events[util.getEvent(key)] = val
+			else attrs[key] = val
+
+		# Sanatize and flatten children.
+		children = (
+			if typeof type is "string" and type in util.selfClosing then []
+			else if innerHTML? then [innerHTML]
+			else util.flatten(children)
+		)
+
+		{ type, attrs, events, children }

@@ -11,20 +11,20 @@ describe "#{details.name}@#{details.version} - Node", ->
 		it "should be able to create", ->
 			node = <div/>
 			node.should.have.properties(
-				tag: "div"
+				type: "div"
 			)
 
 		it "should be able to set attributes", ->
 			node = <div test={ true }/>
 			node.should.have.properties(
-				tag: "div"
+				type: "div"
 				attrs: test: "true"
 			)
 
 		it "should add children", ->
 			node = <div>{ [1, 2, 3] }</div>
 			node.should.have.properties(
-				tag:  "div"
+				type:  "div"
 				children: ["1", "2", "3"]
 			)
 
