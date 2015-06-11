@@ -46,7 +46,7 @@ class Node
 				child.bootstrap(node)
 			else if node.nodeValue isnt child
 				# Use Text.splitText(index) to split up text-nodes from server.
-				child.splitText(node.nodeValue.indexOf(child) + child.length)
+				node.splitText(node.nodeValue.indexOf(child) + child.length)
 		@_element
 
 	###
