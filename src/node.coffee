@@ -60,10 +60,10 @@ class Node
 		else
 			# Give newnode the dom.
 			newNode._element = @_element
-			if newNode.innerHTML? and @innerHTML isnt newNode.innerHTML
-				@_element.innerHTML = newNode.innerHTML
+			if newNode.innerHTML?
+				@_element.innerHTML = newNode.innerHTML if @innerHTML isnt newNode.innerHTML
 			else
-				if @innerHTML? then @_element.innerHTML = ""
+				@_element.removeChild(@_element.firstChild) while @_element.firstChild if @innerHTML?
 				setChildren(@, newNode.children)
 
 			setEvents(@, newNode.events)
