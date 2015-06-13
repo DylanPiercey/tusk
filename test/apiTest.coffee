@@ -3,6 +3,10 @@ should  = require("should")
 details = require("../package.json")
 tusk    = require("../src/index")
 
+defer = (val, ms)->
+	new Promise((resolve)-> setTimeout((-> resolve(val)), ms))
+
+
 describe "#{details.name}@#{details.version} - API", ->
 	require("mocha-jsdom")()
 
@@ -21,7 +25,8 @@ describe "#{details.name}@#{details.version} - API", ->
 					}</ChildComponent>
 				</div>
 
-			(<MyComponent value={ 5 }/>).toString().should.equal(
+
+			(yield <MyComponent value={ 5 }/>).toString().should.equal(
 				"""
 				<div>
 					<h1>
@@ -39,10 +44,10 @@ describe "#{details.name}@#{details.version} - API", ->
 	describe "Document Component", ->
 		it "should be able to bootstrap existing dom", ->
 			div  = document.createElement("div")
-			html = div.innerHTML = String(<div/>)
+			html = div.innerHTML = String(yield <div/>)
 			root = div.childNodes[0]
 
-			tusk.render(<div/>, div)
+			tusk.render(yield <div/>, div)
 
 			div.should.have.properties(
 				innerHTML: "<div></div>"

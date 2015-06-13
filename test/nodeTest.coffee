@@ -6,45 +6,47 @@ Node    = require("../src/node.coffee")
 
 describe "#{details.name}@#{details.version} - Node", ->
 	require("mocha-jsdom")()
+	require("co-mocha")
 
 	describe "Virtual node", ->
 		it "should be able to create", ->
-			node = <div/>
+			node = yield <div/>
 			node.should.have.properties(
 				type: "div"
 			)
 
 		it "should be able to set attributes", ->
-			node = <div test={ true }/>
+			node = yield <div test={ true }/>
 			node.should.have.properties(
 				type: "div"
 				attrs: test: "true"
 			)
 
 		it "should add children", ->
-			node = <div>{ [1, 2, 3] }</div>
+			node = yield <div>{ [1, 2, 3] }</div>
+
 			node.should.have.properties(
 				type:  "div"
-				children: ["1", "2", "3"]
 			)
+			node.children.should.have.a.lengthOf(3)
 
 	describe "Document node", ->
 		it "should be able to create", ->
-			node = <div/>
+			node = yield <div/>
 			node.create().should.have.properties(
 				nodeName:  "DIV"
 				outerHTML: '<div></div>'
 			)
 
 		it "should be able to set attributes", ->
-			node = <div test={ true }/>
+			node = yield <div test={ true }/>
 			node.create().should.have.properties(
 				nodeName:  "DIV"
 				outerHTML: '<div test="true"></div>'
 			)
 
 		it "should add children", ->
-			node = <div>{ [1, 2, 3] }</div>
+			node = yield <div>{ [1, 2, 3] }</div>
 			node.create().should.have.properties(
 				nodeName:  "DIV"
 				outerHTML: '<div>123</div>'
@@ -52,26 +54,26 @@ describe "#{details.name}@#{details.version} - Node", ->
 
 		it "should be able to update", ->
 			parent = document.createElement("div")
-			node = <div test={ 1 }>content</div>
+			node = yield <div test={ 1 }>content</div>
 			parent.appendChild(node.create())
 			parent.should.have.properties(
 				innerHTML: '<div test="1">content</div>'
 			)
 
 			# Update tag name.
-			node.update(<span test={ 4 }>updated</span>)
+			node = node.update(yield <span test={ 1 }>content</span>)
 			parent.should.have.properties(
-				innerHTML: '<span test="4">updated</span>'
+				innerHTML: '<span test="1">content</span>'
 			)
 
 			# Update attrs.
-			node.update(<div test={ 2 }>content</div>)
+			node = node.update(yield <span test={ 2 }>content</span>)
 			parent.should.have.properties(
-				innerHTML: '<div test="2">content</div>'
+				innerHTML: '<span test="2">content</span>'
 			)
 
 			# Update children.
-			node.update(<div test={ 3 }>updated</div>)
+			node = node.update(yield <span test={ 2 }>updated</span>)
 			parent.should.have.properties(
-				innerHTML: '<div test="3">updated</div>'
+				innerHTML: '<span test="2">updated</span>'
 			)

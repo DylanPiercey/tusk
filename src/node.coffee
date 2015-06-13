@@ -1,4 +1,5 @@
-{ escapeHTML, selfClosing } = require("./util")
+{ escapeHTML, selfClosing, setAttrs, setEvents, setChildren } = require("./util")
+Text = require("./text")
 
 class Node
 	###
@@ -12,13 +13,28 @@ class Node
 	constructor: ({ @type, @attrs, @events, @children })->
 		# Sanatize attributes.
 		@attrs[key] = escapeHTML(val) for key, val of @attrs
-		# Sanatize text nodes.
-		@children[i] = escapeHTML(child ? "") for child, i in @children when not (child instanceof Node)
+		# Set text nodes.
+		@children[i] = new Text(child) for child, i in @children when not (child instanceof Node)
+
+	###
+	# Bootstraps event listeners and children from a virtual element.
+	#
+	# @param {HTMLElement} element
+	# @api private
+	###
+	mount: (element)->
+		@_element = { childNodes } = element
+		# Attach event handlers.
+		setEvents(@)
+		# Boostrap children.
+		child.mount(childNodes[i]) for child, i in @children
+		return
 
 	###
 	# Creates a real node out of the virtual node and returns it.
 	#
 	# @returns HTMLElement
+	# @api private
 	###
 	create: ->
 		# Create a real dom element.
@@ -29,157 +45,47 @@ class Node
 		@_element
 
 	###
-	# Bootstraps event listeners and children from a virtual element.
-	#
-	# @param {HTMLElement} element
-	# @returns {HTMLElement}
-	###
-	bootstrap: (element)->
-		@_element = { childNodes } = element
-		# Attach event handlers.
-		setEvents(@)
-		# Boostrap children.
-		for child, i in @children
-			node = childNodes[i]
-			if child instanceof Node
-				# Recursive bootstrap child.
-				child.bootstrap(node)
-			else if node.nodeValue isnt child
-				# Use Text.splitText(index) to split up text-nodes from server.
-				node.splitText(node.nodeValue.indexOf(child) + child.length)
-		@_element
-
-	###
 	# Given a different virtual node it will compare the nodes an update the real node accordingly.
 	#
 	# @param {Node} newNode
+	# @returns {Node|Text}
+	# @api private
 	###
 	update: (newNode)->
 		# Update type requires a re-render.
 		if @type isnt newNode.type
 			@_element.parentNode.replaceChild(newNode.create(), @_element)
-			@_element = newNode._element
-			{ @type, @attrs, @events, @children } = newNode
-			return this
+		else
+			# Give newnode the dom.
+			newNode._element = @_element
+			setAttrs(@, newNode.attrs)
+			setEvents(@, newNode.events)
+			setChildren(@, newNode.children)
 
-		setAttrs(@, newNode.attrs)
-		setEvents(@, newNode.events)
-		setChildren(@, newNode.children)
-		return this
+		# Clear old node references.
+		@_element = @_attrs = @_events = @_children = null
+		return newNode
+
+	###
+	# Removes the current node from it's parent.
+	# @api private
+	###
+	remove: ->
+		# Remove dead event listeners
+		setEvents(@, {})
+		@_element.parentNode.removeChild(@_element)
+		return
 
 	###
 	# Override node's toString to generate valid html.
 	#
 	# @returns {String}
+	# @api public
 	###
 	toString: ->
 		attrs = ""
 		attrs += " #{key}=\"#{val}\"" for key, val of @attrs
 		if @type in selfClosing then "<#{@type + attrs}>"
 		else "<#{@type + attrs}>#{@children.join("")}</#{@type}>"
-
-###
-# Begin Diffing Utilities
-###
-
-###
-# Utility to cast a virtual node into a dom node.
-#
-# @params {Node|String} node
-###
-getElement = (node)->
-	# Recursively create child node.
-	if node instanceof Node then node._element or node.create()
-	# Force non-nodes to strings.
-	else document.createTextNode(node)
-
-###
-# Utility that will update or set a given virtual nodes attributes.
-#
-# @params {Node} node
-# @params {Object} updated?
-###
-setAttrs = (node, updated)->
-	{ _element, attrs } = node
-
-	if updated
-		node.attrs = updated
-	else
-		updated = attrs
-		attrs = {}
-
-	# Append new attrs.
-	_element.setAttribute(key, val) for key, val of updated when val isnt attrs[key]
-	# Remove old attrs.
-	_element.removeAttribute(key) for key of attrs when not updated[key]?
-	return
-
-###
-# Utility that will update or set a given virtual nodes event listeners.
-#
-# @params {Node} node
-# @params {Object} updated?
-###
-setEvents = (node, updated)->
-	{ _element, events } = node
-
-	if updated
-		node.events = updated
-	else
-		updated = events
-		events = {}
-
-	# Attach new events
-	for key, val of updated when val isnt events[key]
-		# Remove old event listener if needed.
-		_element.removeEventListener(key, events[key]) if key of events
-		# Add new event listener.
-		_element.addEventListener(key, val)
-
-	# Remove old events
-	_element.removeEventListener(key, val) for key, val of events when not updated[key]?
-	return
-
-###
-# Utility that will update or set a given virtual nodes children.
-#
-# @params {Node} node
-# @params {Object} updated?
-# @returns {Node}
-###
-setChildren = (node, updated)->
-	{ _element, children } = node
-
-	unless updated
-		updated = children
-		children = []
-
-	node.children = (for i in [0...Math.max(children.length, updated.length)]
-		child        = children[i]
-		newChild     = updated[i]
-		childElement = _element.childNodes[i]
-
-		# If both are nodes, then a simple recursive update will work.
-		if child instanceof Node and newChild instanceof Node
-			child.update(newChild)
-
-		# Replace node with new node.
-		else if child? and newChild?
-			_element.replaceChild(getElement(newChild), childElement)
-			newChild
-
-		# Append new node if there was no old node.
-		else if newChild?
-			_element.appendChild(getElement(newChild))
-			newChild
-
-		# Must delete child if there was no new child.
-		else if child?
-			# Remove dead event listeners
-			setEvents(child, {})
-			_element.removeChild(childElement)
-			continue
-	)
-	return
 
 module.exports  = Node

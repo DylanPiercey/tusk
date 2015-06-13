@@ -1,6 +1,6 @@
 isDOM = require("is-dom")
 Node  = require("./node")
-{ getRoot, getDiff, normalize } = require("./util")
+{ getRoot, getDiff, flatten, selfClosing } = require("./util")
 
 # Store dom and root nodes.
 cache  = node: [], entity: []
@@ -16,19 +16,38 @@ module.exports =
 	# @param {String|Function} type
 	# @param {Object} props
 	# @param {Array} children
-	# @returns {Node|NodeList}
+	# @returns {Promise}->{Node}
+	# @api public
 	###
 	createElement: (type, props = {}, children...)->
-		switch typeof type
-			when "function" then type(normalize(type, props, children))
-			when "string" then new Node(normalize(type, props, children))
-			else throw new Error("Tusk: Invalid virtual node type.")
+		innerHTML = props.innerHTML; delete props.innerHTML
+		attrs     = {}
+		events    = {}
+
+		# Separate attrs from events.
+		for key, val of props
+			unless key[0...2] is "on" then attrs[key] = val
+			else events[key[2..].toLowerCase()] = val
+
+		# Flatten children and resolve all promises.
+		Promise.all(
+			if typeof type is "string" and type in selfClosing then []
+			else if innerHTML? then [innerHTML]
+			else flatten(children)
+		).then((children)->
+			node = { type, attrs, events, children }
+			switch typeof type
+				when "function" then type(node)
+				when "string" then new Node(node)
+				else throw new Error("Tusk: Invalid virtual node type.")
+		)
 
 	###
 	# Render a virtual node into the document.
 	#
 	# @param {Node} node
 	# @param {HTMLEntity} entity
+	# @api public
 	###
 	render: (node, entity)->
 		throw new Error("Tusk: A virtual node is required.") unless node instanceof Node
@@ -59,13 +78,13 @@ module.exports =
 					""")
 				entity.innerHTML = curHTML
 				root             = getRoot(entity)
-			node.bootstrap(root)
+			node.mount(root)
 			return this
 
 		# Ensure that only the most recent frame is ever ran.
 		raf.cancel(frames[index]) if frames[index]?
 		frames[index] = raf(->
 			delete frames[index]
-			cache.node[index].update(node)
+			cache.node[index] = cache.node[index].update(node)
 		)
 		return this
