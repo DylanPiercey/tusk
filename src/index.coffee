@@ -20,9 +20,8 @@ module.exports =
 	# @api public
 	###
 	createElement: (type, props = {}, children...)->
-		innerHTML = props.innerHTML; delete props.innerHTML
-		attrs     = {}
-		events    = {}
+		attrs  = {}
+		events = {}
 
 		# Separate attrs from events.
 		for key, val of props
@@ -31,8 +30,7 @@ module.exports =
 
 		# Flatten children and resolve all promises.
 		Promise.all(
-			if typeof type is "string" and type in selfClosing then []
-			else if innerHTML? then [innerHTML]
+			if type in selfClosing or attrs.innerHTML? then []
 			else flatten(children)
 		).then((children)->
 			node = { type, attrs, events, children }

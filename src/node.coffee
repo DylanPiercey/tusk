@@ -11,9 +11,10 @@ class Node
 	# @constructor
 	###
 	constructor: ({ @type, @attrs, @events, @children })->
+		@innerHTML = @attrs.innerHTML; delete @attrs.innerHTML
 		# Sanatize attributes.
 		@attrs[key] = escapeHTML(val) for key, val of @attrs
-		# Set text nodes.
+		# Children based on keys.
 		@children[i] = new Text(child) for child, i in @children when not (child instanceof Node)
 
 	###
@@ -39,9 +40,10 @@ class Node
 	create: ->
 		# Create a real dom element.
 		@_element = document.createElement(@type)
-		setAttrs(@)
+		if @innerHTML? then @_element.innerHTML = @innerHTML
+		else setChildren(@)
 		setEvents(@)
-		setChildren(@)
+		setAttrs(@)
 		@_element
 
 	###
@@ -58,9 +60,14 @@ class Node
 		else
 			# Give newnode the dom.
 			newNode._element = @_element
-			setAttrs(@, newNode.attrs)
+			if newNode.innerHTML? and @innerHTML isnt newNode.innerHTML
+				@_element.innerHTML = newNode.innerHTML
+			else
+				if @innerHTML? then @_element.innerHTML = ""
+				setChildren(@, newNode.children)
+
 			setEvents(@, newNode.events)
-			setChildren(@, newNode.children)
+			setAttrs(@, newNode.attrs)
 			@_element = null
 
 		return newNode
@@ -85,6 +92,6 @@ class Node
 		attrs = ""
 		attrs += " #{key}=\"#{val}\"" for key, val of @attrs
 		if @type in selfClosing then "<#{@type + attrs}>"
-		else "<#{@type + attrs}>#{@children.join("")}</#{@type}>"
+		else "<#{@type + attrs}>#{@innerHTML ? @children.join("")}</#{@type}>"
 
 module.exports  = Node

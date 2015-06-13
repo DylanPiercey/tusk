@@ -29,6 +29,16 @@ describe "#{details.name}@#{details.version} - Node", ->
 			)
 			node.children.should.have.a.lengthOf(3)
 
+		it "should set innerHTML", ->
+			node = yield <div innerHTML="<span></span>"/>
+
+			node.should.have.properties(
+				type: "div"
+				innerHTML: "<span></span>"
+			)
+			node.toString().should.equal("<div><span></span></div>")
+
+
 	describe "Document node", ->
 		it "should be able to create", ->
 			node = yield <div/>
@@ -49,6 +59,13 @@ describe "#{details.name}@#{details.version} - Node", ->
 			node.create().should.have.properties(
 				nodeName:  "DIV"
 				outerHTML: '<div>123</div>'
+			)
+
+		it "should set innerHTML", ->
+			node = yield <div innerHTML="<span></span>"/>
+			node.create().should.have.properties(
+				nodeName:  "DIV"
+				outerHTML: '<div><span></span></div>'
 			)
 
 		it "should be able to update", ->
