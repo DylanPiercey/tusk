@@ -3,11 +3,8 @@ should  = require("should")
 details = require("../package.json")
 tusk    = require("../src/index")
 
-defer = (val, ms)->
-	new Promise((resolve)-> setTimeout((-> resolve(val)), ms))
-
-
 describe "#{details.name}@#{details.version} - API", ->
+	require("co-mocha")
 	require("mocha-jsdom")()
 
 	describe "Virtual component", ->

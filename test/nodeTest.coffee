@@ -2,11 +2,10 @@
 should  = require("should")
 details = require("../package.json")
 tusk    = require("../src/index")
-Node    = require("../src/node.coffee")
 
 describe "#{details.name}@#{details.version} - Node", ->
-	require("mocha-jsdom")()
 	require("co-mocha")
+	require("mocha-jsdom")()
 
 	describe "Virtual node", ->
 		it "should be able to create", ->

@@ -1,5 +1,5 @@
+Text                                                          = require("./text")
 { escapeHTML, selfClosing, setAttrs, setEvents, setChildren } = require("./util")
-Text = require("./text")
 
 class Node
 	###
@@ -61,9 +61,8 @@ class Node
 			setAttrs(@, newNode.attrs)
 			setEvents(@, newNode.events)
 			setChildren(@, newNode.children)
+			@_element = null
 
-		# Clear old node references.
-		@_element = @_attrs = @_events = @_children = null
 		return newNode
 
 	###
