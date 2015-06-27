@@ -1,9 +1,12 @@
-isDOM = require("is-dom")
-Node  = require("./node")
-{ getRoot, getDiff, flatten, selfClosing } = require("./util")
+isDOM                = require("is-dom")
+Text                 = require("./virtual/text")
+Node                 = require("./virtual/node")
+Component            = require("./virtual/component")
+{ getRoot, getDiff } = require("./util")
 
 # Store dom and root nodes.
 cache  = node: [], entity: []
+
 # Store current frames.
 frames = {}
 
@@ -20,25 +23,11 @@ module.exports =
 	# @api public
 	###
 	createElement: (type, props = {}, children...)->
-		attrs  = {}
-		events = {}
-
-		# Separate attrs from events.
-		for key, val of props
-			unless key[0...2] is "on" then attrs[key] = val
-			else events[key[2..].toLowerCase()] = val
-
-		# Flatten children and resolve all promises.
-		Promise.all(
-			if type in selfClosing or attrs.innerHTML? then []
-			else flatten(children)
-		).then((children)->
-			node = { type, attrs, events, children }
-			switch typeof type
-				when "function" then type(node)
-				when "string" then new Node(node)
-				else throw new Error("Tusk: Invalid virtual node type.")
-		)
+		# Create node based on type.
+		switch typeof type
+			when "object" then new Component(type, props, children)
+			when "string" then new Node(type, props, children)
+			else new Error("Tusk: Invalid virtual node type.")
 
 	###
 	# Render a virtual node into the document.
@@ -48,7 +37,7 @@ module.exports =
 	# @api public
 	###
 	render: (node, entity)->
-		throw new Error("Tusk: A virtual node is required.") unless node instanceof Node
+		throw new Error("Tusk: A virtual node is required.") unless node?.isTusk
 		throw new Error("Tusk: Container must be a DOM element.") unless isDOM(entity)
 		raf   = require("component-raf")
 		index = cache.entity.indexOf(entity)

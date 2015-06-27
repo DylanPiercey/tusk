@@ -26,20 +26,24 @@ npm install tusk
 /** @jsx tusk */
 let tusk = require('tusk');
 
-function MyInput (component) {
-    let { attrs, events, children } = component;
-    <input type={ attrs.type } onClick={ MyComponent.handleClick }/>
-}
+let MyInput = {
+    handleClick(e, component, setState) {
+        alert(e.target.value);
+    },
 
-function handleClick (e) {
-    alert(e.target.value);
-}
+    render(component, setState) {
+        let { attrs, events, children } = component;
+        return (
+            <input type={ attrs.type } onClick={ MyInput.handleClick }/>
+        }
+    }
+};
 
 // Render into the browser.
 tusk.render(<MyInput type="text"/>, document.body);
 
 // Render into a string.
-let HTML = (<MyInput type="text"/>).toString()
+let HTML = String(<MyInput type="text"/>)
 ```
 
 # API
@@ -56,7 +60,7 @@ let HTML = (<MyInput type="text"/>).toString()
     vNode.toString(); // '<div editable="true">Hello World</div>';
 
     /**
-     * @params type can also be a function that returns nodes.
+     * @params type can also be an object with a render function (shown in example above).
      */
     ```
 

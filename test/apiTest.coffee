@@ -1,30 +1,30 @@
 # @cjsx tusk
-should  = require("should")
+assert  = require("assert")
 details = require("../package.json")
 tusk    = require("../src/index")
 
 describe "#{details.name}@#{details.version} - API", ->
-	require("co-mocha")
-	require("mocha-jsdom")()
+	require("mocha-jsdom")() if typeof window is "undefined"
 
 	describe "Virtual component", ->
 		it "should be able to create", ->
-			ChildComponent = ({ attrs, children })->
-				<h1>{for child, i in children
-					child.attrs.class = "child-#{i}"
-					child
-				}</h1>
+			ChildComponent =
+				render: ({ attrs, children })->
+					<h1>{for child, i in children
+						child.attrs.class = "child-#{i}"
+						child
+					}</h1>
 
-			MyComponent = ({ attrs: { value }, children })->
-				<div>
-					<ChildComponent value={ value * 2}>{for i in [0..value]
-						<span>{ i }</span>
-					}</ChildComponent>
-				</div>
+			MyComponent =
+				render: ({ attrs: { value }, children })->
+					<div>
+						<ChildComponent value={ value * 2}>{for i in [0..value]
+							<span>{ i }</span>
+						}</ChildComponent>
+					</div>
 
 
-			(yield <MyComponent value={ 5 }/>).toString().should.equal(
-				"""
+			assert(<MyComponent value={ 5 }/>.toString() is """
 				<div>
 					<h1>
 						<span class="child-0">0</span>
@@ -35,21 +35,43 @@ describe "#{details.name}@#{details.version} - API", ->
 						<span class="child-5">5</span>
 					</h1>
 				</div>
-				""".replace(/\t|\n/g, "")
-			)
+			""".replace(/\t|\n/g, ""))
+
+		it "should be able to set initial state", ->
+			MyComponent =
+				render: ({ state }, setState)->
+					state.i ?= 0
+					<div>{ state.i }</div>
+
+			assert(<MyComponent/>.toString() is "<div>0</div>")
 
 	describe "Document Component", ->
 		it "should be able to bootstrap existing dom", ->
 			div  = document.createElement("div")
-			html = div.innerHTML = String(yield <div/>)
+			html = div.innerHTML = String(<div/>)
 			root = div.childNodes[0]
+			tusk.render(<div/>, div)
 
-			tusk.render(yield <div/>, div)
+			assert(div.innerHTML is "<div></div>")
+			assert(div.childNodes[0] is root)
 
-			div.should.have.properties(
-				innerHTML: "<div></div>"
-			)
+		it "should be able to setState", ->
+			MyComponent =
+				handleClick: (setState, state)->->
+					setState(i: state.i + 1)
+				render: ({ state }, setState)->
+					state.i ?= 0
+					<div onClick={ MyComponent.handleClick(setState, state) }>
+						{ state.i }
+					</div>
 
-			div.should.have.property("childNodes")
-				.with.property("0")
-				.equal(root)
+			div  = document.createElement("div")
+			html = div.innerHTML = String(<MyComponent/>)
+			root = div.childNodes[0]
+			tusk.render(<MyComponent/>, div)
+			root.click()
+			root.click()
+			root.click()
+			root.click()
+
+			assert(div.innerHTML is "<div>4</div>")

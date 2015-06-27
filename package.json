@@ -1,11 +1,12 @@
 {
   "name": "tusk",
-  "version": "0.0.36",
+  "version": "0.0.37",
   "description": "A slim virtual dom implementation.",
   "author": "Dylan Piercey <pierceydylan@gmail.com>",
   "main": "lib/index.js",
   "license": "MIT",
   "scripts": {
+    "build": "gulp build",
     "test": "gulp test"
   },
   "keywords": [
@@ -21,8 +22,7 @@
     "url": "https://github.com/DylanPiercey/tusk"
   },
   "devDependencies": {
-    "co": "^4.5.4",
-    "co-mocha": "^1.1.0",
+    "browserify": "^10.2.4",
     "coffee-react": "^3.2.0",
     "coffee-reactify": "^3.0.0",
     "gulp": "^3.8.11",
@@ -31,8 +31,7 @@
     "gulp-mocha": "^2.0.1",
     "jsdom": "^5.4.1",
     "mocha": "^2.2.5",
-    "mocha-jsdom": "^0.3.0",
-    "should": "^6.0.1"
+    "mocha-jsdom": "^0.3.0"
   },
   "dependencies": {
     "component-raf": "^1.2.0",
