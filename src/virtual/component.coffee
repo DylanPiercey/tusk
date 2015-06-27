@@ -24,7 +24,8 @@ class Component
 	###
 	# Utility to lazily bundle the context of the component.
 	#
-	# @returns {Object}
+	# @return {Object}
+	# @api private
 	###
 	getCtx: ->
 		{ @attrs, @events, @children, @state }
@@ -32,7 +33,8 @@ class Component
 	###
 	# Utility to update the component's state and it's virtual node.
 	#
-	# @params {Object} state
+	# @param {Object} state
+	# @api public
 	###
 	setState: (state)=>
 		# Replace state if this component was never rendered.
@@ -45,6 +47,7 @@ class Component
 
 	###
 	# Utility to get a virtual node for this component and optionally update it's state.
+	# @api private
 	###
 	render: ->
 		# If we don't have state then will will find it.
@@ -57,6 +60,7 @@ class Component
 	# Render component and defer bootstrap to virtual node.
 	#
 	# @param {HTMLElement} element
+	# @api private
 	###
 	mount: (element)->
 		@render() unless @_node
@@ -65,7 +69,8 @@ class Component
 	###
 	# Render component and defer create to virtual node.
 	#
-	# @returns HTMLElement
+	# @return HTMLElement
+	# @api private
 	###
 	create: ->
 		@render() unless @_node
@@ -75,28 +80,35 @@ class Component
 	# Given a different virtual node it will compare the nodes an update the real node accordingly.
 	#
 	# @param {Virtual} updated
-	# @returns {Virtual}
+	# @return {Virtual}
+	# @api private
 	###
 	update: (updated)->
 		# Update to another components render passinf along state if the components share type.
 		if updated instanceof Component
 			updated._node = @_node
 			updated.setState(@state)
-			@_node        = null
 		# If updated is not a component then defer to virtual node.
 		else @_node.update(updated)
+
+		@_node = null
 		return updated
 
 	###
 	# Defer removal to virtual node.
+	#
+	# @api private
 	###
 	remove: ->
 		@_node?.remove()
+		@_node = null
+		return
 
 	###
 	# Render component and get it's string value.
 	#
-	# @returns {String}
+	# @return {String}
+	# @api public
 	###
 	toString: ->
 		@render() unless @_node

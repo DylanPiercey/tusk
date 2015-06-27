@@ -15,6 +15,7 @@ class Text
 	# Bootstraps event listeners and children from a virtual element.
 	#
 	# @param {HTMLElement} element
+	# @api private
 	###
 	mount: (element)->
 		@_element = { nodeValue } = element
@@ -25,7 +26,8 @@ class Text
 	###
 	# Creates a real node out of the virtual node and returns it.
 	#
-	# @returns HTMLElement
+	# @return HTMLElement
+	# @api private
 	###
 	create: -> @_element = document.createTextNode(@value)
 
@@ -34,6 +36,7 @@ class Text
 	#
 	# @param {Virtual} updated
 	# @returns {Virtual}
+	# @api private
 	###
 	update: (updated)->
 		if updated instanceof Text and updated.toString() is @value
@@ -41,17 +44,22 @@ class Text
 		else
 			@_element.parentNode.replaceChild(updated.create(), @_element)
 
+		@_element = null
 		return updated
 
 	###
 	# Removes the current node from it's parent.
 	###
-	remove: -> @_element.parentNode.removeChild(@_element)
+	remove: ->
+		@_element.parentNode.removeChild(@_element)
+		@_element = null
+		return
 
 	###
 	# Return text nodes value.
 	#
-	# @returns {String}
+	# @return {String}
+	# @api public
 	###
 	toString: -> escapeHTML(@value)
 

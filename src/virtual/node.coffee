@@ -16,7 +16,7 @@ class Node
 		@attrs  = {}
 		@events = {}
 
-		# Separate attrs from events and sanatize attrs.
+		# Separate attrs from events.
 		for key, val of props
 			unless key[0...2] is "on" then @attrs[key] = val
 			else @events[key[2..].toLowerCase()] = val
@@ -48,7 +48,7 @@ class Node
 	###
 	# Creates a real node out of the virtual node and returns it.
 	#
-	# @returns HTMLElement
+	# @return HTMLElement
 	# @api private
 	###
 	create: ->
@@ -64,7 +64,7 @@ class Node
 	# Given a different virtual node it will compare the nodes an update the real node accordingly.
 	#
 	# @param {Virtual} updated
-	# @returns {Virtual}
+	# @return {Virtual}
 	# @api private
 	###
 	update: (updated)->
@@ -75,31 +75,35 @@ class Node
 			# Give updated the dom.
 			updated._element = @_element
 			if updated.innerHTML?
+				# Direct innerHTML update.
 				@_element.innerHTML = updated.innerHTML if @innerHTML isnt updated.innerHTML
 			else
-				@_element.removeChild(@_element.firstChild) while @_element.firstChild if @innerHTML?
+				# If we are going from innerHTML to nodes then we must clean up.
+				@_element.innerHTML = "" if @innerHTML?
 				setChildren(@, updated.children)
 
 			setEvents(@, updated.events)
 			setAttrs(@, updated.attrs)
-			@_element = null
 
+		@_element = null
 		return updated
 
 	###
 	# Removes the current node from it's parent.
+	#
 	# @api private
 	###
 	remove: ->
 		# Remove dead event listeners
 		setEvents(@, {})
 		@_element.parentNode.removeChild(@_element)
+		@_element = null
 		return
 
 	###
 	# Override node's toString to generate valid html.
 	#
-	# @returns {String}
+	# @return {String}
 	# @api public
 	###
 	toString: ->

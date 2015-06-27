@@ -8,7 +8,7 @@ module.exports =
 	# Escape special characters in the given string of html.
 	#
 	# @param {String} html
-	# @returns {String}
+	# @return {String}
 	# @api private
 	###
 	escapeHTML: (html)->
@@ -23,21 +23,22 @@ module.exports =
 	# Utility to recursively flatten a nested array.
 	#
 	# @param {Array} arr
-	# @returns {Array}
+	# @return {Array}
+	# @api private
 	###
 	flatten: flatten = (arr, result = [])->
 		return result unless arr
 		return [arr] unless arr instanceof Array
 		for a in arr
-			if Array.isArray(a) then flatten(a, result)
+			if a instanceof Array then flatten(a, result)
 			else result.push(a)
 		result
 
 	###
 	# Returns the root node for an element (this is different for the documentElement).
 	#
-	# @params {HTMLEntity} entity
-	# @returns {HTMLEntity}
+	# @param {HTMLEntity} entity
+	# @return {HTMLEntity}
 	# @api private
 	###
 	getRoot: (entity)->
@@ -49,7 +50,7 @@ module.exports =
 	#
 	# @param {String} a
 	# @param {String} b
-	# @returns {Array<String>}
+	# @return {Array<String>}
 	# @api private
 	###
 	getDiff: (a, b)->
@@ -61,8 +62,8 @@ module.exports =
 	###
 	# Utility that will update or set a given virtual nodes attributes.
 	#
-	# @params {Node} node
-	# @params {Object} updated?
+	# @param {Node} node
+	# @param {Object} updated?
 	# @api private
 	###
 	setAttrs: ({ _element, attrs }, updated)->
@@ -71,7 +72,7 @@ module.exports =
 			attrs   = {}
 
 		# Append new attrs.
-		_element.setAttribute(key, val) for key, val of updated when val? and val isnt attrs[key]
+		_element.setAttribute(key, val) for key, val of updated when val isnt attrs[key]
 		# Remove old attrs.
 		_element.removeAttribute(key) for key of attrs when not updated[key]?
 		return
@@ -79,8 +80,8 @@ module.exports =
 	###
 	# Utility that will update or set a given virtual nodes event listeners.
 	#
-	# @params {Node} node
-	# @params {Object} updated?
+	# @param {Node} node
+	# @param {Object} updated?
 	# @api private
 	###
 	setEvents: ({ _element, events }, updated)->
@@ -102,9 +103,9 @@ module.exports =
 	###
 	# Utility that will update or set a given virtual nodes children.
 	#
-	# @params {Node} node
-	# @params {Object} updated?
-	# @returns {Node}
+	# @param {Node} node
+	# @param {Object} updated?
+	# @return {Node}
 	# @api private
 	###
 	setChildren: ({ _element, children }, updated)->
