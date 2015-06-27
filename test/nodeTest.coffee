@@ -14,7 +14,7 @@ describe "#{details.name}@#{details.version} - Node", ->
 		it "should be able to set attributes", ->
 			node = <div test={ true }/>
 			assert(node.type is "div")
-			assert.deepEqual(node.attrs, test: "true")
+			assert.deepEqual(node.attrs, test: true)
 
 		it "should add children", ->
 			node = <div>{ [1, 2, 3] }</div>

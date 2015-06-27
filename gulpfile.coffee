@@ -22,7 +22,7 @@ gulp.task("build", ->
 			console.log(err.stack)
 			this.emit("end")
 		))
-		.pipe(header("/** #{details.name} v#{details.version} https://www.npmjs.com/package/#{details.name}*/\n"))
+		.pipe(header("/** #{details.name} v#{details.version} https://www.npmjs.com/package/#{details.name} */\n"))
 		.pipe(gulp.dest(lib))
 )
 

@@ -9,8 +9,7 @@ class Text
 	# @constructor
 	###
 	constructor: (value = "")->
-		# Sanatize html text. (Mostly for server side rendering).
-		@value = escapeHTML(value)
+		@value = String(value)
 
 	###
 	# Bootstraps event listeners and children from a virtual element.
@@ -54,6 +53,6 @@ class Text
 	#
 	# @returns {String}
 	###
-	toString: -> @value
+	toString: -> escapeHTML(@value)
 
 module.exports  = Text

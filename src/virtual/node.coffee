@@ -18,7 +18,7 @@ class Node
 
 		# Separate attrs from events and sanatize attrs.
 		for key, val of props
-			unless key[0...2] is "on" then @attrs[key] = escapeHTML(val)
+			unless key[0...2] is "on" then @attrs[key] = val
 			else @events[key[2..].toLowerCase()] = val
 
 		# Flatten children.
@@ -104,7 +104,7 @@ class Node
 	###
 	toString: ->
 		attrs = ""
-		attrs += " #{key}=\"#{val}\"" for key, val of @attrs
+		attrs += " #{key}=\"#{escapeHTML(val)}\"" for key, val of @attrs
 		if @type in selfClosing then "<#{@type + attrs}>"
 		else "<#{@type + attrs}>#{@innerHTML ? @children.join("")}</#{@type}>"
 

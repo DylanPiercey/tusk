@@ -24,7 +24,7 @@ describe "#{details.name}@#{details.version} - API", ->
 					</div>
 
 
-			assert(<MyComponent value={ 5 }/>.toString() is """
+			assert.equal(<MyComponent value={ 5 }/>, """
 				<div>
 					<h1>
 						<span class="child-0">0</span>
@@ -43,7 +43,7 @@ describe "#{details.name}@#{details.version} - API", ->
 					state.i ?= 0
 					<div>{ state.i }</div>
 
-			assert(<MyComponent/>.toString() is "<div>0</div>")
+			assert.equal(<MyComponent/>, "<div>0</div>")
 
 	describe "Document Component", ->
 		it "should be able to bootstrap existing dom", ->
@@ -52,7 +52,7 @@ describe "#{details.name}@#{details.version} - API", ->
 			root = div.childNodes[0]
 			tusk.render(<div/>, div)
 
-			assert(div.innerHTML is "<div></div>")
+			assert.equal(div.innerHTML, "<div></div>")
 			assert(div.childNodes[0] is root)
 
 		it "should be able to setState", ->
@@ -71,6 +71,7 @@ describe "#{details.name}@#{details.version} - API", ->
 			html = div.innerHTML = String(<MyComponent/>)
 			root = div.childNodes[0]
 			tusk.render(<MyComponent/>, div)
-			setState(i: state.i + 1) for i in [0...5]
+			for i in [0...5]
+				setState(i: state.i + 1)
 
-			assert(div.innerHTML is "<div>5</div>")
+			assert.equal(div.innerHTML, "<div>5</div>")
