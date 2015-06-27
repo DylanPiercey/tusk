@@ -1,6 +1,6 @@
 {
   "name": "tusk",
-  "version": "0.0.37",
+  "version": "0.0.38",
   "description": "A slim virtual dom implementation.",
   "author": "Dylan Piercey <pierceydylan@gmail.com>",
   "main": "lib/index.js",
@@ -31,7 +31,8 @@
     "gulp-mocha": "^2.0.1",
     "jsdom": "^5.4.1",
     "mocha": "^2.2.5",
-    "mocha-jsdom": "^0.3.0"
+    "mocha-jsdom": "^0.3.0",
+    "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
     "component-raf": "^1.2.0",
