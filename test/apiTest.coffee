@@ -56,10 +56,12 @@ describe "#{details.name}@#{details.version} - API", ->
 			assert(div.childNodes[0] is root)
 
 		it "should be able to setState", ->
+			state = setState = null
 			MyComponent =
 				handleClick: (setState, state)->->
-					setState(i: state.i + 1)
-				render: ({ state }, setState)->
+
+				render: ->
+					[{ state }, setState] = arguments
 					state.i ?= 0
 					<div onClick={ MyComponent.handleClick(setState, state) }>
 						{ state.i }
@@ -69,9 +71,6 @@ describe "#{details.name}@#{details.version} - API", ->
 			html = div.innerHTML = String(<MyComponent/>)
 			root = div.childNodes[0]
 			tusk.render(<MyComponent/>, div)
-			root.click()
-			root.click()
-			root.click()
-			root.click()
+			setState(i: state.i + 1) for i in [0...5]
 
-			assert(div.innerHTML is "<div>4</div>")
+			assert(div.innerHTML is "<div>5</div>")

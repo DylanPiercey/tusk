@@ -27,7 +27,7 @@ module.exports =
 	###
 	flatten: flatten = (arr, result = [])->
 		return result unless arr
-		return [arr] unless Array.isArray(arr)
+		return [arr] unless arr instanceof Array
 		for a in arr
 			if Array.isArray(a) then flatten(a, result)
 			else result.push(a)
