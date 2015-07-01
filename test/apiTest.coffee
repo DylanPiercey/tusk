@@ -55,7 +55,7 @@ describe "#{details.name}@#{details.version} - API", ->
 			assert.equal(div.innerHTML, "<div></div>")
 			assert(div.childNodes[0] is root)
 
-		it "should be able to setState", ->
+		it "should be able to setState", (done)->
 			state = setState = null
 			MyComponent =
 				handleClick: (setState, state)->->
@@ -74,4 +74,7 @@ describe "#{details.name}@#{details.version} - API", ->
 			for i in [0...5]
 				setState(i: state.i + 1)
 
-			assert.equal(div.innerHTML, "<div>5</div>")
+			setTimeout(->
+				assert.equal(div.innerHTML, "<div>5</div>")
+				done()
+			, 60)

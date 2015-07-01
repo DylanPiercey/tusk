@@ -1,6 +1,6 @@
 {
   "name": "tusk",
-  "version": "0.0.42",
+  "version": "0.0.43",
   "description": "A slim virtual dom implementation.",
   "author": "Dylan Piercey <pierceydylan@gmail.com>",
   "main": "lib/index.js",

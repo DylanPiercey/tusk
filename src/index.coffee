@@ -68,7 +68,7 @@ module.exports =
 			node.mount(root)
 			return this
 
-		# Ensure that only the most recent frame is ever ran.
+		# Update the cached node and discard it.
 		raf.cancel(frames[index]) if frames[index]?
 		frames[index] = raf(->
 			delete frames[index]

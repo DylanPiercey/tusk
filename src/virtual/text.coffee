@@ -29,7 +29,8 @@ class Text
 	# @return HTMLElement
 	# @api private
 	###
-	create: -> @_element = document.createTextNode(@value)
+	create: ->
+		@_element = document.createTextNode(@value)
 
 	###
 	# Given a different virtual node it will compare the nodes an update the real node accordingly.
@@ -61,6 +62,7 @@ class Text
 	# @return {String}
 	# @api public
 	###
-	toString: -> escapeHTML(@value)
+	toString: ->
+		escapeHTML(@value)
 
 module.exports  = Text

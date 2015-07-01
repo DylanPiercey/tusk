@@ -12,6 +12,7 @@ class Node
 	# @constructor
 	###
 	constructor: (@type, props, children)->
+		@key       = props.key; delete props.key
 		@innerHTML = props.innerHTML; delete props.innerHTML
 		@attrs  = {}
 		@events = {}

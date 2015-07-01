@@ -8,7 +8,7 @@ module.exports =
 	# Escape special characters in the given string of html.
 	#
 	# @param {String} html
-	# @return {String}
+	# @returns {String}
 	# @api private
 	###
 	escapeHTML: (html)->
@@ -23,8 +23,7 @@ module.exports =
 	# Utility to recursively flatten a nested array.
 	#
 	# @param {Array} arr
-	# @return {Array}
-	# @api private
+	# @returns {Array}
 	###
 	flatten: flatten = (arr, result = [])->
 		return result unless arr
@@ -37,8 +36,8 @@ module.exports =
 	###
 	# Returns the root node for an element (this is different for the documentElement).
 	#
-	# @param {HTMLEntity} entity
-	# @return {HTMLEntity}
+	# @params {HTMLEntity} entity
+	# @returns {HTMLEntity}
 	# @api private
 	###
 	getRoot: (entity)->
@@ -50,7 +49,7 @@ module.exports =
 	#
 	# @param {String} a
 	# @param {String} b
-	# @return {Array<String>}
+	# @returns {Array<String>}
 	# @api private
 	###
 	getDiff: (a, b)->
@@ -62,8 +61,8 @@ module.exports =
 	###
 	# Utility that will update or set a given virtual nodes attributes.
 	#
-	# @param {Node} node
-	# @param {Object} updated?
+	# @params {Node} node
+	# @params {Object} updated?
 	# @api private
 	###
 	setAttrs: ({ _element, attrs }, updated)->
@@ -80,8 +79,8 @@ module.exports =
 	###
 	# Utility that will update or set a given virtual nodes event listeners.
 	#
-	# @param {Node} node
-	# @param {Object} updated?
+	# @params {Node} node
+	# @params {Object} updated?
 	# @api private
 	###
 	setEvents: ({ _element, events }, updated)->
@@ -103,9 +102,9 @@ module.exports =
 	###
 	# Utility that will update or set a given virtual nodes children.
 	#
-	# @param {Node} node
-	# @param {Object} updated?
-	# @return {Node}
+	# @params {Node} node
+	# @params {Object} updated?
+	# @returns {Node}
 	# @api private
 	###
 	setChildren: ({ _element, children }, updated)->

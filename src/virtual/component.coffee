@@ -37,12 +37,19 @@ class Component
 	# @api public
 	###
 	setState: (state)=>
+		raf = require("component-raf")
 		# Replace state if this component was never rendered.
 		unless @state then @state = state
 		# Merge on a new state.
 		else @state[key] = val for key, val of state
-		# Render with new state.
-		@_node = @_node.update(@type.render(@getCtx(), @setState))
+
+		# Ensure only the latest state update is rendered (All state changes are applied virtually).
+		raf.cancel(@frame) if @frame?
+		@frame = raf(=>
+			delete @frame
+			# Render with new state.
+			@_node = @_node.update(@type.render(@getCtx(), @setState))
+		)
 		return
 
 	###
@@ -51,7 +58,7 @@ class Component
 	###
 	render: ->
 		# If we don't have state then will will find it.
-		@state ?= @type.initialState?() or {}
+		@state ?= @type.initialState?(@getCtx()) or {}
 		# Create virtual node.
 		@_node = @type.render(@getCtx(), @setState)
 		return
