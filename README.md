@@ -1,5 +1,7 @@
 # TUSK
 
+[![Join the chat at https://gitter.im/DylanPiercey/tusk](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/DylanPiercey/tusk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A lightweight viritual-dom with a friendly interface.
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/DylanPiercey/Tusk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
