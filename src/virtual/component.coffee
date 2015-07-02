@@ -57,7 +57,7 @@ class Component
 	# @api private
 	###
 	render: ->
-		# If we don't have state then will will find it.
+		# If we don't have state then we will find it.
 		@state ?= @type.initialState?(@getCtx()) or {}
 		# Create virtual node.
 		@_node = @type.render(@getCtx(), @setState)
