@@ -35,7 +35,7 @@ class Component
 		@frame = raf(=>
 			delete @frame
 			# Render with new state.
-			@_node = @_node.update(@type.render(@ctx, @setState))
+			@_node = @_node.update(@type.render(@ctx))
 		)
 		return
 
@@ -47,7 +47,7 @@ class Component
 		# If we don't have state then we will find it.
 		@ctx.state ?= @type.initialState?(@ctx) or {}
 		# Create virtual node.
-		@_node = @type.render(@ctx, @setState)
+		@_node = @type.render(@ctx)
 		return
 
 	###

@@ -55,29 +55,30 @@ describe "#{details.name}@#{details.version} - API", ->
 			tusk.render(<div/>, div)
 
 			assert.equal(div.innerHTML, "<div></div>")
-			assert.equal(div.childNodes[0], root)
+			assert(div.childNodes[0] is root)
 
 		it "should be able to setState", (done)->
-			state = setState = null
 			MyComponent =
-				handleClick: (setState, state)->->
+				initialState: -> {}
+				handleClick: (e, { state }, update)->
+					update(i: ++state.i)
 
-				render: ->
-					[{ state }, setState] = arguments
+				render: ({ state })->
 					state.i ?= 0
-					<div onClick={ MyComponent.handleClick(setState, state) }>
+					<div onClick={ MyComponent.handleClick }>
 						{ state.i }
 					</div>
 
-			div  = document.createElement("div")
-			html = div.innerHTML = String(<MyComponent/>)
-			tusk.render(<MyComponent/>, div)
+			root = document.createElement("div")
+			root.innerHTML = String(<MyComponent/>)
+			elem = root.childNodes[0]
+			tusk.render(<MyComponent/>, root)
+			document.body.appendChild(root)
 
-			for i in [0...5]
-				setState(i: state.i + 1)
+			elem.click() for i in [0...5]
 
 			setTimeout(->
-				assert.equal(div.innerHTML, "<div>5</div>")
+				assert.equal(root.innerHTML, "<div>5</div>")
 				done()
 			, 10)
 
@@ -92,10 +93,11 @@ describe "#{details.name}@#{details.version} - API", ->
 				render: ->
 					<div onClick={ MyComponent.handleClick }/>
 
-			root = document.body
+			root = document.createElement("div")
 			root.innerHTML = String(<MyComponent/>)
 			elem = root.childNodes[0]
 			tusk.render(<MyComponent/>, root)
+			document.body.appendChild(root)
 			elem.click()
 
 			setTimeout(->

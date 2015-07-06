@@ -30,24 +30,32 @@ npm install tusk
 /** @jsx tusk */
 let tusk = require('tusk');
 
-let MyInput = {
-    handleClick(e, component, setState) {
-        alert(e.target.value);
+let MyCounter = {
+    initialState() {
+        return { i: 0 };
+    }
+
+    handleClick(e, component, update) {
+        let { attrs, events, state, children } = component;
+        update(i: state.i + 1)
     },
 
-    render(component, setState) {
-        let { attrs, events, children } = component;
+    render(component) {
+        let { attrs, events, state, children } = component;
         return (
-            <input type={ attrs.type } onClick={ MyInput.handleClick }/>
+            <button onClick={ MyCounter.handleClick }>
+                { attrs.message } : { state.i }
+            </button>
         }
     }
 };
 
 // Render into the browser.
-tusk.render(<MyInput type="text"/>, document.body);
+tusk.render(<MyCounter message="Times clicked"/>, document.body);
 
 // Render into a string (Usually for the server).
-let HTML = String(<MyInput type="text"/>)
+let HTML = String(<MyCounter type="Times clicked"/>)
+// -> "<button>Times clicked : 0</button>"
 ```
 
 # API
