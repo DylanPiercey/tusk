@@ -12,8 +12,8 @@ describe "#{details.name}@#{details.version} - API", ->
 		it "should be able to create", ->
 			ChildComponent =
 				render: ({ attrs, children })->
-					<h1>{for child, i in children
-						child.attrs.class = "child-#{i}"
+					<h1>{for key, child of children
+						child.attrs.class = "child-#{key}"
 						child
 					}</h1>
 
@@ -55,7 +55,7 @@ describe "#{details.name}@#{details.version} - API", ->
 			tusk.render(<div/>, div)
 
 			assert.equal(div.innerHTML, "<div></div>")
-			assert(div.childNodes[0] is root)
+			assert.equal(div.childNodes[0], root)
 
 		it "should be able to setState", (done)->
 			state = setState = null

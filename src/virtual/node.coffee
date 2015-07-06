@@ -17,7 +17,7 @@ class Node
 		@key       = @attrs.key or null; delete @attrs.key
 		@innerHTML = @attrs.innerHTML; delete @attrs.innerHTML
 		# Cast non-virtuals to text nodes.
-		@children[i] = new Text(child) for child, i in @children when not child?.isTusk
+		@children[key] = new Text(child) for key, child of @children when not child?.isTusk
 
 	###
 	# Bootstraps event listeners and children from a virtual element.
@@ -29,7 +29,7 @@ class Node
 		@_element = { childNodes } = element
 		@_element[NODE] = @
 		# Boostrap children.
-		child.mount(childNodes[i]) for child, i in @children
+		child.mount(childNodes[child.index or key]) for key, child of @children
 		return
 
 	###
@@ -95,7 +95,14 @@ class Node
 	toString: ->
 		attrs = ""
 		attrs += " #{key}=\"#{escapeHTML(val)}\"" for key, val of @attrs
+
+		if @innerHTML
+			children = @innerHTML
+		else
+			children = ""
+			children += child for key, child of @children
+
 		if @type in SELF_CLOSING then "<#{@type + attrs}>"
-		else "<#{@type + attrs}>#{@innerHTML ? @children.join("")}</#{@type}>"
+		else "<#{@type + attrs}>#{children}</#{@type}>"
 
 module.exports  = Node

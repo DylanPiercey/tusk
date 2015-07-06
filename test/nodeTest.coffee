@@ -10,70 +10,97 @@ describe "#{details.name}@#{details.version} - Node", ->
 	describe "Virtual node", ->
 		it "should be able to create", ->
 			node = <div/>
-			assert(node.type is "div")
+			assert.equal(node.type, "div")
 
 		it "should be able to set attributes", ->
 			node = <div test={ true }/>
-			assert(node.type is "div")
+			assert.equal(node.type, "div")
 			assert.deepEqual(node.attrs, test: true)
 
 		it "should add children", ->
 			node = <div>{ [1, 2, 3] }</div>
 
-			assert(node.type is "div")
-			assert(node.children.length is 3)
+			assert.equal(node.type, "div")
+			assert.equal(Object.keys(node.children).length, 3)
 
 		it "should set innerHTML", ->
 			node = <div innerHTML="<span></span>"/>
 
-			assert(node.type is "div")
-			assert(node.innerHTML is "<span></span>")
-			assert(String(node) is "<div><span></span></div>")
+			assert.equal(node.type, "div")
+			assert.equal(node.innerHTML, "<span></span>")
+			assert.equal(String(node), "<div><span></span></div>")
 
 	describe "Document node", ->
 		it "should be able to create", ->
 			node = <div/>
 			elem = node.create()
 
-			assert(elem.nodeName is "DIV")
-			assert(elem.outerHTML is "<div></div>")
+			assert.equal(elem.nodeName, "DIV")
+			assert.equal(elem.outerHTML, "<div></div>")
 
 		it "should be able to set attributes", ->
 			node = <div test={ true }/>
 			elem = node.create()
 
-			assert(elem.nodeName is "DIV")
-			assert(elem.outerHTML is '<div test="true"></div>')
+			assert.equal(elem.nodeName, "DIV")
+			assert.equal(elem.outerHTML, '<div test="true"></div>')
 
 		it "should add children", ->
 			node = <div>{ [1, 2, 3] }</div>
 			elem = node.create()
 
-			assert(elem.nodeName is "DIV")
-			assert(elem.outerHTML is "<div>123</div>")
+			assert.equal(elem.nodeName, "DIV")
+			assert.equal(elem.outerHTML, "<div>123</div>")
 
 		it "should set innerHTML", ->
 			node = <div innerHTML="<span></span>"/>
 			elem = node.create()
 
-			assert(elem.nodeName is "DIV")
-			assert(elem.outerHTML is '<div><span></span></div>')
+			assert.equal(elem.nodeName, "DIV")
+			assert.equal(elem.outerHTML, '<div><span></span></div>')
 
 		it "should be able to update", ->
 			parent = document.createElement("div")
 			node   = <div test={ 1 }>content</div>
 			parent.appendChild(node.create())
 
-			assert(parent.innerHTML is '<div test="1">content</div>')
+			assert.equal(parent.innerHTML, '<div test="1">content</div>')
 
 			# Update tag name.
 			node = node.update(<span test={ 1 }>content</span>)
-			assert(parent.innerHTML is '<span test="1">content</span>')
+			assert.equal(parent.innerHTML, '<span test="1">content</span>')
 
 			# Update attrs.
 			node = node.update(<span test={ 2 }>content</span>)
-			assert(parent.innerHTML is '<span test="2">content</span>')
+			assert.equal(parent.innerHTML, '<span test="2">content</span>')
 
 			# Update children.
 			node = node.update(<span test={ 2 }>updated</span>)
-			assert(parent.innerHTML is '<span test="2">updated</span>')
+			assert.equal(parent.innerHTML, '<span test="2">updated</span>')
+
+		it "should keep track of keyed nodes", ->
+			parent = document.createElement("div")
+			node   = (
+				<div>
+					<div key="0"/>
+					<span key="1"/>
+					<a key="2"/>
+				</div>
+			)
+			parent.appendChild(node.create())
+			initialChildren = [].slice.call(parent.childNodes[0].childNodes)
+
+
+			node.update(
+				<div>
+					<span key="1"/>
+					<a key="2"/>
+					<div key="0"/>
+				</div>
+			)
+			updatedChildren = [].slice.call(parent.childNodes[0].childNodes)
+
+			# Test that no nodes were scrapped, only moved.
+			assert.equal(initialChildren[0], updatedChildren[2])
+			assert.equal(initialChildren[1], updatedChildren[0])
+			assert.equal(initialChildren[2], updatedChildren[1])

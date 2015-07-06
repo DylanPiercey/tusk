@@ -15,17 +15,17 @@ module.exports =
 			.replace(/>/g, "&gt;")
 
 	###
-	# Utility to recursively flatten a nested array.
+	# Utility to recursively flatten a nested array into a keyed node list.
 	#
 	# @param {Array} arr
-	# @returns {Array}
+	# @returns {Object}
 	###
-	flatten: flatten = (arr, result = [])->
-		return result unless arr
-		return [arr] unless arr instanceof Array
-		for a in arr
-			if a instanceof Array then flatten(a, result)
-			else result.push(a)
+	flatten: flatten = (arr, result = {}, acc = val: -1)->
+		if arr instanceof Array then flatten(a, result, acc) for a in arr
+		else if arr?
+			acc.val++
+			result[arr?.key or acc.val] = arr
+			arr.index = acc.val if arr.isTusk
 		result
 
 	###
@@ -80,16 +80,27 @@ module.exports =
 	# @api private
 	###
 	setChildren: ({ _element, children }, updated)->
+		moved          = {}
+		{ childNodes } = _element
+
+		# If we arent given an update then we will just append all children.
 		unless updated
 			updated  = children
 			children = []
 
-		for child, i in updated
+		for key, child of updated
 			# Update existing nodes.
-			if i of children then children[i].update(child)
+			if key of children
+				(old = children[key]).update(child)
+				# Mark a node as moved if it's index has changed.
+				if old.index isnt child.index
+					moved[child.index] = childNodes[old.index]
 			# Add new nodes.
 			else _element.appendChild(child.create())
 
 		# Remove old nodes
-		child.remove() while child = children[i++]
+		child.remove() for key, child of children when not key of updated
+		# Reposition moved nodes
+		_element.insertBefore(childEl, childNodes[pos]) for pos, childEl of moved
+
 		return

@@ -10,8 +10,12 @@ Many virtual-dom implementations are bulky and are not optimized for server side
 Currently this is experimental and should not be used in production.
 
 * Lightweight.
+* Minimal API.
+* Functional.
+* Isomorphic.
+* No extra "data-react-id" attributes.
+* No random span's inserted into DOM.
 * Supports JSX.
-* Zero assumptions.
 
 # Installation
 
@@ -42,7 +46,7 @@ let MyInput = {
 // Render into the browser.
 tusk.render(<MyInput type="text"/>, document.body);
 
-// Render into a string.
+// Render into a string (Usually for the server).
 let HTML = String(<MyInput type="text"/>)
 ```
 

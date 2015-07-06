@@ -1,6 +1,6 @@
-{ flatten }   = require("../util")
-{ COMPONENT } = require("../constants")
-raf           = require("component-raf") if process.browser
+{ flatten }            = require("../util")
+{ COMPONENT, BROWSER } = require("../constants")
+raf                    = require("component-raf") if BROWSER
 
 class Component
 	isTusk: true
@@ -25,7 +25,6 @@ class Component
 	# @api public
 	###
 	setState: (state)=>
-		raf = require("component-raf")
 		# Replace state if this component was never rendered.
 		unless @ctx.state then @ctx.state = state
 		# Merge on a new state.
