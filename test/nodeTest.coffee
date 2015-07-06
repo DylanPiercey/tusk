@@ -1,10 +1,11 @@
 # @cjsx tusk
 assert  = require("assert")
 details = require("../package.json")
-tusk    = require("../src/index")
-
 describe "#{details.name}@#{details.version} - Node", ->
-	require("mocha-jsdom")() if typeof window is "undefined"
+	require("mocha-jsdom")() if typeof document is "undefined"
+
+	tusk           = null
+	before -> tusk = require("../src/index")
 
 	describe "Virtual node", ->
 		it "should be able to create", ->

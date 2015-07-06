@@ -1,5 +1,6 @@
-Text                                                                   = require("./text")
-{ escapeHTML, flatten, selfClosing, setAttrs, setEvents, setChildren } = require("../util")
+Text                                  = require("./text")
+{ escapeHTML, setAttrs, setChildren } = require("../util")
+{ SELF_CLOSING, NODE }                = require("../constants")
 
 class Node
 	isTusk: true
@@ -7,30 +8,16 @@ class Node
 	###
 	# Creates a virtual dom node that can be later transformed into a real node and updated.
 	# @param {String} type
-	# @param {Object} props
+	# @param {Object} attrs
+	# @param {Object} events
 	# @param {Array} children
 	# @constructor
 	###
-	constructor: (@type, props, children)->
-		@key       = props.key; delete props.key
-		@innerHTML = props.innerHTML; delete props.innerHTML
-		@attrs  = {}
-		@events = {}
-
-		# Separate attrs from events.
-		for key, val of props
-			unless key[0...2] is "on" then @attrs[key] = val
-			else @events[key[2..].toLowerCase()] = val
-
-		# Flatten children.
-		@children = (
-			if @type in selfClosing or @innerHTML? then []
-			else flatten(children)
-		)
-
+	constructor: (@type, @attrs, @events, @children)->
+		@key       = @attrs.key or null; delete @attrs.key
+		@innerHTML = @attrs.innerHTML; delete @attrs.innerHTML
 		# Cast non-virtuals to text nodes.
-		for child, i in @children when not child?.isTusk
-			@children[i] = new Text(child)
+		@children[i] = new Text(child) for child, i in @children when not child?.isTusk
 
 	###
 	# Bootstraps event listeners and children from a virtual element.
@@ -40,8 +27,7 @@ class Node
 	###
 	mount: (element)->
 		@_element = { childNodes } = element
-		# Attach event handlers.
-		setEvents(@)
+		@_element[NODE] = @
 		# Boostrap children.
 		child.mount(childNodes[i]) for child, i in @children
 		return
@@ -55,9 +41,9 @@ class Node
 	create: ->
 		# Create a real dom element.
 		@_element = document.createElement(@type)
+		@_element[NODE] = @
 		if @innerHTML? then @_element.innerHTML = @innerHTML
 		else setChildren(@)
-		setEvents(@)
 		setAttrs(@)
 		@_element
 
@@ -83,10 +69,10 @@ class Node
 				@_element.innerHTML = "" if @innerHTML?
 				setChildren(@, updated.children)
 
-			setEvents(@, updated.events)
 			setAttrs(@, updated.attrs)
 
-		@_element = null
+		@_element[NODE] = updated
+		@_element       = null
 		return updated
 
 	###
@@ -95,10 +81,9 @@ class Node
 	# @api private
 	###
 	remove: ->
-		# Remove dead event listeners
-		setEvents(@, {})
 		@_element.parentNode.removeChild(@_element)
-		@_element = null
+		@_element[NODE] = null
+		@_element       = null
 		return
 
 	###
@@ -110,7 +95,7 @@ class Node
 	toString: ->
 		attrs = ""
 		attrs += " #{key}=\"#{escapeHTML(val)}\"" for key, val of @attrs
-		if @type in selfClosing then "<#{@type + attrs}>"
+		if @type in SELF_CLOSING then "<#{@type + attrs}>"
 		else "<#{@type + attrs}>#{@innerHTML ? @children.join("")}</#{@type}>"
 
 module.exports  = Node

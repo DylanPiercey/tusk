@@ -1,10 +1,12 @@
 # @cjsx tusk
 assert  = require("assert")
 details = require("../package.json")
-tusk    = require("../src/index")
 
 describe "#{details.name}@#{details.version} - API", ->
-	require("mocha-jsdom")() if typeof window is "undefined"
+	require("mocha-jsdom")() if typeof document is "undefined"
+
+	tusk           = null
+	before -> tusk = require("../src/index")
 
 	describe "Virtual component", ->
 		it "should be able to create", ->
@@ -69,12 +71,35 @@ describe "#{details.name}@#{details.version} - API", ->
 
 			div  = document.createElement("div")
 			html = div.innerHTML = String(<MyComponent/>)
-			root = div.childNodes[0]
 			tusk.render(<MyComponent/>, div)
+
 			for i in [0...5]
 				setState(i: state.i + 1)
 
 			setTimeout(->
 				assert.equal(div.innerHTML, "<div>5</div>")
 				done()
-			, 60)
+			, 10)
+
+		it "should listen for events", (done)->
+			eventType = eventComp = null
+
+			MyComponent =
+				handleClick: ->
+					[{ type: eventType }, { type: eventComp }] = arguments
+					return
+
+				render: ->
+					<div onClick={ MyComponent.handleClick }/>
+
+			root = document.body
+			root.innerHTML = String(<MyComponent/>)
+			elem = root.childNodes[0]
+			tusk.render(<MyComponent/>, root)
+			elem.click()
+
+			setTimeout(->
+				assert.equal(eventType, "click")
+				assert.equal(MyComponent, eventComp)
+				done()
+			, 10)

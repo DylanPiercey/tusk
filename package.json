@@ -1,6 +1,6 @@
 {
   "name": "tusk",
-  "version": "0.0.43",
+  "version": "0.0.44",
   "description": "A slim virtual dom implementation.",
   "author": "Dylan Piercey <pierceydylan@gmail.com>",
   "main": "lib/index.js",
@@ -35,6 +35,7 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
+    "component-emitter": "^1.2.0",
     "component-raf": "^1.2.0",
     "is-dom": "^1.0.5"
   }

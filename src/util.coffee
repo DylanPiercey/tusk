@@ -1,9 +1,4 @@
 module.exports =
-	selfClosing: [
-		"area", "base", "br", "col", "command", "embed", "hr", "img", "input",
-		"keygen", "link", "meta", "param", "source", "track", "wbr"
-	]
-
 	###
 	# Escape special characters in the given string of html.
 	#
@@ -71,32 +66,9 @@ module.exports =
 			attrs   = {}
 
 		# Append new attrs.
-		_element.setAttribute(key, val) for key, val of updated when val isnt attrs[key]
+		_element.setAttribute(key, val) for key, val of updated when val? and val isnt attrs[key]
 		# Remove old attrs.
-		_element.removeAttribute(key) for key of attrs when not updated[key]?
-		return
-
-	###
-	# Utility that will update or set a given virtual nodes event listeners.
-	#
-	# @params {Node} node
-	# @params {Object} updated?
-	# @api private
-	###
-	setEvents: ({ _element, events }, updated)->
-		unless updated
-			updated = events
-			events  = {}
-
-		# Attach new events
-		for key, val of updated when val isnt events[key]
-			# Remove old event listener if needed.
-			_element.removeEventListener(key, events[key]) if key of events
-			# Add new event listener.
-			_element.addEventListener(key, val)
-
-		# Remove old events
-		_element.removeEventListener(key, val) for key, val of events when not updated[key]?
+		_element.removeAttribute(key) for key of attrs when not key of updated
 		return
 
 	###
@@ -112,12 +84,12 @@ module.exports =
 			updated  = children
 			children = []
 
-		for child, i in children
+		for child, i in updated
 			# Update existing nodes.
-			if i of updated then child.update(updated[i])
-			# Remove extra nodes.
-			else child.remove()
+			if i of children then children[i].update(child)
+			# Add new nodes.
+			else _element.appendChild(child.create())
 
-		# Add new nodes
-		_element.appendChild(child.create()) while child = updated[i++]
+		# Remove old nodes
+		child.remove() while child = children[i++]
 		return
