@@ -33,11 +33,11 @@ let tusk = require('tusk');
 let MyCounter = {
     initialState() {
         return { i: 0 };
-    }
+    },
 
     handleClick(e, component, update) {
         let { attrs, events, state, children } = component;
-        update(i: state.i + 1)
+        update({ i: state.i + 1 })
     },
 
     render(component) {
@@ -46,7 +46,7 @@ let MyCounter = {
             <button onClick={ MyCounter.handleClick }>
                 { attrs.message } : { state.i }
             </button>
-        }
+        );
     }
 };
 
@@ -54,7 +54,7 @@ let MyCounter = {
 tusk.render(<MyCounter message="Times clicked"/>, document.body);
 
 // Render into a string (Usually for the server).
-let HTML = String(<MyCounter type="Times clicked"/>)
+let HTML = String(<MyCounter type="Times clicked"/>);
 // -> "<button>Times clicked : 0</button>"
 ```
 
@@ -69,6 +69,10 @@ let HTML = String(<MyCounter type="Times clicked"/>)
 
     ```javascript
     let vNode = tusk.createElement("div", { editable: true }, "Hello World");
+    // Or call tusk directly
+    let vNode = tusk("div", { editable: true }, "Hello World");
+
+    // Render to string on the server.
     vNode.toString(); // '<div editable="true">Hello World</div>';
 
     /**

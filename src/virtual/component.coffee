@@ -58,7 +58,9 @@ class Component
 	###
 	mount: (element)->
 		@render() unless @_node
+		@type.beforeMount?(@)
 		@_node.mount(element)
+		@type.afterMount?(@, element)
 		@_element = @_node._element
 		@_element[COMPONENT] = @
 		return
@@ -71,7 +73,9 @@ class Component
 	###
 	create: ->
 		@render() unless @_node
+		@type.beforeMount?(@)
 		@_node.create()
+		@type.afterMount?(@, element)
 		@_element = @_node._element
 		@_element[COMPONENT] = @
 		return
@@ -84,6 +88,12 @@ class Component
 	# @api private
 	###
 	update: (updated)->
+		# Allow for the user to deside if a component should actually update.
+		return updated unless @type.shouldUpdate?(@, updated)
+
+		# Allow before update actions.
+		@type.beforeUpdate?(@, updated)
+
 		# Update to another components render passinf along state if the components share type.
 		if updated instanceof Component
 			updated._node = @_node
@@ -96,6 +106,10 @@ class Component
 
 		@_element            = null
 		@_node               = null
+
+		# Allow post update actions.
+		@type.afterUpdate?(@, component, @setState)
+
 		return updated
 
 	###
@@ -104,6 +118,7 @@ class Component
 	# @api private
 	###
 	remove: ->
+		@type.beforeUnmount?(@, @_element)
 		@_node?.remove()
 		@_element[COMPONENT] = null
 		@_element            = null
@@ -117,6 +132,7 @@ class Component
 	# @api public
 	###
 	toString: ->
+		@type.beforeMount?(@)
 		@render() unless @_node
 		@_node.toString()
 
