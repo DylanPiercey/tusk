@@ -40,7 +40,7 @@ class Text
 	# @api private
 	###
 	update: (updated)->
-		if updated instanceof Text and updated.toString() is @value
+		if updated instanceof Text and updated.value is @value
 			updated._elem = @_elem
 		else
 			@_elem.parentNode.replaceChild(updated.create(), @_elem)
