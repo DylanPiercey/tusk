@@ -22,15 +22,15 @@ class Node
 	###
 	# Bootstraps event listeners and children from a virtual element.
 	#
-	# @param {HTMLElement} element
+	# @param {HTMLElement} elem
 	# @api private
 	###
-	mount: (element)->
-		@_element = { childNodes } = element
-		@_element[NODE] = @
+	mount: (elem)->
+		{ childNodes } = elem
 		# Boostrap children.
-		child.mount(childNodes[child.index or key]) for key, child of @children
-		return
+		child.mount(childNodes[child.index or key]) for key, child of @children unless @innerHTML?
+		elem[NODE] = @
+		@_elem     = elem
 
 	###
 	# Creates a real node out of the virtual node and returns it.
@@ -40,12 +40,12 @@ class Node
 	###
 	create: ->
 		# Create a real dom element.
-		@_element = document.createElement(@type)
-		@_element[NODE] = @
-		if @innerHTML? then @_element.innerHTML = @innerHTML
-		else setChildren(@)
-		setAttrs(@)
-		@_element
+		elem = document.createElement(@type)
+		setAttrs(elem, @attrs)
+		unless @innerHTML? then setChildren(elem, @children)
+		else elem.innerHTML = @innerHTML
+		elem[NODE] = @
+		@_elem     = elem
 
 	###
 	# Given a different virtual node it will compare the nodes an update the real node accordingly.
@@ -57,23 +57,22 @@ class Node
 	update: (updated)->
 		# Update type requires a re-render.
 		if @type isnt updated.type
-			@_element.parentNode.replaceChild(updated.create(), @_element)
+			@_elem.parentNode.replaceChild(updated.create(), @_elem)
 		else
 			# Give updated the dom.
-			updated._element = @_element
-			if updated.innerHTML?
+			updated._elem = @_elem
+			setAttrs(@_elem, @attrs, updated.attrs)
+			if updated.innerHTML? then if @innerHTML isnt updated.innerHTML
 				# Direct innerHTML update.
-				@_element.innerHTML = updated.innerHTML if @innerHTML isnt updated.innerHTML
+				@_elem.innerHTML = updated.innerHTML
 			else
 				# If we are going from innerHTML to nodes then we must clean up.
-				@_element.innerHTML = "" if @innerHTML?
-				setChildren(@, updated.children)
+				@_elem.innerHTML = "" if @innerHTML?
+				setChildren(@_elem, @children, updated.children)
 
-			setAttrs(@, updated.attrs)
-
-		@_element[NODE] = updated
-		@_element       = null
-		return updated
+		@_elem[NODE] = updated
+		delete @_elem
+		updated
 
 	###
 	# Removes the current node from it's parent.
@@ -81,10 +80,9 @@ class Node
 	# @api private
 	###
 	remove: ->
-		@_element.parentNode.removeChild(@_element)
-		@_element[NODE] = null
-		@_element       = null
-		return
+		@_elem.parentNode.removeChild(@_elem)
+		delete @_elem[NODE]
+		delete @_elem
 
 	###
 	# Override node's toString to generate valid html.
@@ -93,14 +91,11 @@ class Node
 	# @api public
 	###
 	toString: ->
-		attrs = ""
+		attrs = children = ""
 		attrs += " #{key}=\"#{escapeHTML(val)}\"" for key, val of @attrs
 
-		if @innerHTML
-			children = @innerHTML
-		else
-			children = ""
-			children += child for key, child of @children
+		if @innerHTML then children = @innerHTML
+		else children += child for key, child of @children
 
 		if @type in SELF_CLOSING then "<#{@type + attrs}>"
 		else "<#{@type + attrs}>#{children}</#{@type}>"

@@ -31,17 +31,43 @@ npm install tusk
 let tusk = require('tusk');
 
 let MyCounter = {
-    initialState() {
+    // Defaults for component attributes.
+    defaultAttrs: { message: "N/A" },
+
+    // Called on first render for default component state.
+    initialState(component) {
+        let { attrs, events, children } = component;
         return { i: 0 };
     },
 
+    // Called before component attaches to dom (and on server).
+    beforeMount(component) {...},
+
+    // Called after the component has attached to the dom.
+    afterMount(component, element, update) {...},
+
+    // Called before an update, return false to cancel the update.
+    shouldUpdate(component, newComponent) {...},
+
+    // Called before a component begins updating.
+    beforeUpdate(component, newComponent) {...},
+
+    // Called after a component has updated.
+    afterUpdate(component, oldComponent, update) {...},
+
+    // Called before a component is detatched from the dom.
+    beforeUnmount(component, element) {...},
+
+    // Custom event handler.
     handleClick(e, component, update) {
         let { attrs, events, state, children } = component;
-        update({ i: state.i + 1 })
+        update({ i: state.i + 1 });
     },
 
+    // Render the component.
     render(component) {
         let { attrs, events, state, children } = component;
+
         return (
             <button onClick={ MyCounter.handleClick }>
                 { attrs.message } : { state.i }

@@ -2,17 +2,13 @@ Text                          = require("./virtual/text")
 Node                          = require("./virtual/node")
 Component                     = require("./virtual/component")
 { getRoot, getDiff, flatten } = require("./util")
-{ SELF_CLOSING, BROWSER }     = require("./constants")
+{ BROWSER, COMPONENT, NODE }  = require("./constants")
 
 if BROWSER
-	raf   = require("component-raf")
 	isDOM = require("is-dom")
+	raf   = require("component-raf")
 	# Bootstrap event listeners.
 	require("./delegator")
-	# Store dom and root nodes.
-	cache  = node: [], entity: []
-	# Store current frames.
-	frames = {}
 
 ###
 # Utility to create virtual elements.
@@ -33,11 +29,8 @@ tusk = (type, props = {}, children...)->
 		unless key[0...2] is "on" then attrs[key] = val
 		else events[key[2..].toLowerCase()] = val
 
-	# Flatten children if needed.
-	children = (
-		if type in SELF_CLOSING then []
-		else flatten(children)
-	)
+	# Flatten children into a keyed object.
+	children = flatten(children)
 
 	# Create node based on type.
 	switch typeof type
@@ -63,15 +56,23 @@ tusk.render = (node, entity)->
 	throw new Error("Tusk: Cannot render on the server (use toString).") unless BROWSER
 	throw new Error("Tusk: Container must be a DOM element.") unless isDOM(entity)
 	throw new Error("Tusk: A virtual node is required.") unless node?.isTusk
-	index = cache.entity.indexOf(entity)
+	prev = entity[COMPONENT] or entity[NODE]
 
-	# Check if this entity has been rendered into before.
-	if index is -1
+	# Check if this entity has been rendered into before with this virtual node.
+	if prev
+		raf.cancel(prev.frame) if "frame" of prev
+		prev.frame = raf(=>
+			delete prev.frame
+			# Update the virtual node.
+			prev.update(node)
+		)
+
+		prev.updated(node)
+	# Otherwise we will attempt to bootstrap.
+	else
 		root     = getRoot(entity)
-		curHTML  = String(node)
+		curHTML  = node.toString()
 		prevHTML = root?.outerHTML
-		cache.entity.push(entity)
-		cache.node.push(node)
 
 		# Attempt to see if we can bootstrap off of existing dom.
 		unless curHTML is prevHTML
@@ -90,14 +91,6 @@ tusk.render = (node, entity)->
 			root             = getRoot(entity)
 		node.mount(root)
 
-	# Update the cached node and discard it.
-	else
-		raf.cancel(frames[index]) if frames[index]?
-		frames[index] = raf(->
-			delete frames[index]
-			cache.node[index] = cache.node[index].update(node)
-		)
-
-	return this
+	return
 
 module.exports = tusk

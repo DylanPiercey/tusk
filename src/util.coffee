@@ -17,15 +17,15 @@ module.exports =
 	###
 	# Utility to recursively flatten a nested array into a keyed node list.
 	#
-	# @param {Array} arr
+	# @param {Array|Virtual} node
 	# @returns {Object}
 	###
-	flatten: flatten = (arr, result = {}, acc = val: -1)->
-		if arr instanceof Array then flatten(a, result, acc) for a in arr
-		else if arr?
+	flatten: flatten = (node, result = {}, acc = val: -1)->
+		if node instanceof Array then flatten(child, result, acc) for child in node
+		else if node?
 			acc.val++
-			result[arr?.key or acc.val] = arr
-			arr.index = acc.val if arr.isTusk
+			result[node?.key or acc.val] = node
+			node.index = acc.val if node.isTusk
 		result
 
 	###
@@ -55,52 +55,51 @@ module.exports =
 
 	###
 	# Utility that will update or set a given virtual nodes attributes.
-	#
-	# @params {Node} node
-	# @params {Object} updated?
+	# @params {HTMLEntity} elem
+	# @params {Object} prev
+	# @params {Object} next
 	# @api private
 	###
-	setAttrs: ({ _element, attrs }, updated)->
-		unless updated
-			updated = attrs
-			attrs   = {}
+	setAttrs: (elem, prev, next)->
+		unless next
+			next = prev
+			prev = {}
 
 		# Append new attrs.
-		_element.setAttribute(key, val) for key, val of updated when val? and val isnt attrs[key]
+		elem.setAttribute(key, val) for key, val of next when val? and val isnt prev[key]
 		# Remove old attrs.
-		_element.removeAttribute(key) for key of attrs when not key of updated
+		elem.removeAttribute(key) for key of prev when not key of next
 		return
 
 	###
 	# Utility that will update or set a given virtual nodes children.
 	#
-	# @params {Node} node
-	# @params {Object} updated?
+	# @params {HTMLEntity} elem
+	# @params {Object} prev
+	# @params {Object} next
 	# @returns {Node}
 	# @api private
 	###
-	setChildren: ({ _element, children }, updated)->
+	setChildren: (elem, prev, next)->
 		moved          = {}
-		{ childNodes } = _element
+		{ childNodes } = elem
 
-		# If we arent given an update then we will just append all children.
-		unless updated
-			updated  = children
-			children = []
+		unless next
+			next = prev
+			prev = {}
 
-		for key, child of updated
+		for key, child of next
 			# Update existing nodes.
-			if key of children
-				(old = children[key]).update(child)
+			if key of prev
+				(prevChild = prev[key]).update(child)
 				# Mark a node as moved if it's index has changed.
-				if old.index isnt child.index
-					moved[child.index] = childNodes[old.index]
+				if prevChild.index isnt child.index
+					moved[child.index] = childNodes[prevChild.index]
 			# Add new nodes.
-			else _element.appendChild(child.create())
+			else elem.appendChild(child.create())
 
 		# Remove old nodes
-		child.remove() for key, child of children when not key of updated
+		child.remove() for key, child of prev when not key of next
 		# Reposition moved nodes
-		_element.insertBefore(childEl, childNodes[pos]) for pos, childEl of moved
-
+		elem.insertBefore(childEl, childNodes[pos]) for pos, childEl of moved
 		return

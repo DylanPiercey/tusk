@@ -14,14 +14,14 @@ class Text
 	###
 	# Bootstraps event listeners and children from a virtual element.
 	#
-	# @param {HTMLElement} element
+	# @param {HTMLElement} elem
 	# @api private
 	###
-	mount: (element)->
-		@_element = { nodeValue } = element
+	mount: (elem)->
+		{ nodeValue } = elem
 		# Use Text.splitText(index) to split up text-nodes from server.
-		element.splitText(nodeValue.indexOf(@value) + @value.length) if @value isnt nodeValue
-		return
+		elem.splitText(nodeValue.indexOf(@value) + @value.length) if @value isnt nodeValue
+		@_elem = elem
 
 	###
 	# Creates a real node out of the virtual node and returns it.
@@ -30,7 +30,7 @@ class Text
 	# @api private
 	###
 	create: ->
-		@_element = document.createTextNode(@value)
+		@_elem = document.createTextNode(@value)
 
 	###
 	# Given a different virtual node it will compare the nodes an update the real node accordingly.
@@ -41,20 +41,19 @@ class Text
 	###
 	update: (updated)->
 		if updated instanceof Text and updated.toString() is @value
-			updated._element = @_element
+			updated._elem = @_elem
 		else
-			@_element.parentNode.replaceChild(updated.create(), @_element)
+			@_elem.parentNode.replaceChild(updated.create(), @_elem)
 
-		@_element = null
-		return updated
+		delete @_elem
+		updated
 
 	###
 	# Removes the current node from it's parent.
 	###
 	remove: ->
-		@_element.parentNode.removeChild(@_element)
-		@_element = null
-		return
+		@_elem.parentNode.removeChild(@_elem)
+		delete @_elem
 
 	###
 	# Return text nodes value.

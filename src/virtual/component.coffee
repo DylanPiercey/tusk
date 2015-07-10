@@ -1,4 +1,3 @@
-{ flatten }            = require("../util")
 { COMPONENT, BROWSER } = require("../constants")
 raf                    = require("component-raf") if BROWSER
 
@@ -15,6 +14,7 @@ class Component
 	###
 	constructor: (@type, attrs, events, children)->
 		throw new Error("Tusk: Component must have a render function.") unless typeof @type.render is "function"
+		attrs[key] ?= val for key, val of @type.defaultAttrs
 		@key = attrs.key or null; delete attrs.key
 		@ctx = { @type, attrs, events, children }
 
@@ -37,33 +37,30 @@ class Component
 			# Render with new state.
 			@_node = @_node.update(@type.render(@ctx))
 		)
-		return
 
 	###
-	# Utility to get a virtual node for this component and optionally update it's state.
+	# Utility to get a virtual node for this component.
 	# @api private
 	###
 	render: ->
-		# If we don't have state then we will find it.
-		@ctx.state ?= @type.initialState?(@ctx) or {}
+		# A component only gets state when it's rendered for the first time.
+		@ctx.state ?= @type.initialState?(@ctx)
 		# Create virtual node.
 		@_node = @type.render(@ctx)
-		return
 
 	###
 	# Render component and defer bootstrap to virtual node.
 	#
-	# @param {HTMLElement} element
+	# @param {HTMLElement} elem
 	# @api private
 	###
-	mount: (element)->
+	mount: (elem)->
 		@render() unless @_node
-		@type.beforeMount?(@)
-		@_node.mount(element)
-		@type.afterMount?(@, element)
-		@_element = @_node._element
-		@_element[COMPONENT] = @
-		return
+		@type.beforeMount?(@ctx)
+		@_node.mount(elem)
+		elem[COMPONENT] = @
+		@type.afterMount?(@ctx, @setState, elem)
+		elem
 
 	###
 	# Render component and defer create to virtual node.
@@ -73,12 +70,11 @@ class Component
 	###
 	create: ->
 		@render() unless @_node
-		@type.beforeMount?(@)
-		@_node.create()
-		@type.afterMount?(@, element)
-		@_element = @_node._element
-		@_element[COMPONENT] = @
-		return
+		@type.beforeMount?(@ctx)
+		elem = @_node.create()
+		elem[COMPONENT] = @
+		@type.afterMount?(@ctx, @setState, _elem)
+		elem
 
 	###
 	# Given a different virtual node it will compare the nodes an update the real node accordingly.
@@ -88,29 +84,24 @@ class Component
 	# @api private
 	###
 	update: (updated)->
-		# Allow for the user to deside if a component should actually update.
-		return updated unless @type.shouldUpdate?(@, updated)
-
-		# Allow before update actions.
-		@type.beforeUpdate?(@, updated)
-
-		# Update to another components render passinf along state if the components share type.
-		if updated instanceof Component
+		# Update components of the same type by simply passing along state.
+		if updated.type is @type
+			# Allow for the user to decide if a component should actually update.
+			return @ if "shouldUpdate" of @type and not @type.shouldUpdate(@ctx, updated.ctx)
+			# Allow before update actions.
+			@type.beforeUpdate?(@ctx, updated.ctx)
 			updated._node = @_node
 			updated.setState(@ctx.state)
-			@_element[COMPONENT] = updated
+			@_node._elem[COMPONENT] = updated
+			# Allow post update actions.
+			@type.afterUpdate?(updated.ctx, @ctx, updated.setState)
 		# If updated is not a component then defer to virtual node.
 		else
+			delete @_node._elem[COMPONENT]
 			@_node.update(updated)
-			@_element[COMPONENT] = null
 
-		@_element            = null
-		@_node               = null
-
-		# Allow post update actions.
-		@type.afterUpdate?(@, component, @setState)
-
-		return updated
+		delete @_node
+		updated
 
 	###
 	# Defer removal to virtual node.
@@ -118,12 +109,10 @@ class Component
 	# @api private
 	###
 	remove: ->
-		@type.beforeUnmount?(@, @_element)
-		@_node?.remove()
-		@_element[COMPONENT] = null
-		@_element            = null
-		@_node               = null
-		return
+		@type.beforeUnmount?(@ctx, @_node._elem)
+		@_node.remove()
+		delete @_node._elem[COMPONENT]
+		delete @_node
 
 	###
 	# Render component and get it's string value.
@@ -132,7 +121,7 @@ class Component
 	# @api public
 	###
 	toString: ->
-		@type.beforeMount?(@)
+		@type.beforeMount?(@ctx)
 		@render() unless @_node
 		@_node.toString()
 

@@ -41,8 +41,9 @@ describe "#{details.name}@#{details.version} - API", ->
 
 		it "should be able to set initial state", ->
 			MyComponent =
+				initialState: ->
+					i: 0
 				render: ({ state }, setState)->
-					state.i ?= 0
 					<div>{ state.i }</div>
 
 			assert.equal(<MyComponent/>, "<div>0</div>")
@@ -59,12 +60,13 @@ describe "#{details.name}@#{details.version} - API", ->
 
 		it "should be able to setState", (done)->
 			MyComponent =
-				initialState: -> {}
+				initialState: ->
+					i: 0
+
 				handleClick: (e, { state }, update)->
 					update(i: ++state.i)
 
 				render: ({ state })->
-					state.i ?= 0
 					<div onClick={ MyComponent.handleClick }>
 						{ state.i }
 					</div>
