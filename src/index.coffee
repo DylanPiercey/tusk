@@ -61,13 +61,12 @@ tusk.render = (node, entity)->
 	# Check if this entity has been rendered into before with this virtual node.
 	if prev
 		raf.cancel(prev.frame) if "frame" of prev
-		prev.frame = raf(=>
+		prev.frame = raf(->
 			delete prev.frame
 			# Update the virtual node.
 			prev.update(node)
 		)
 
-		prev.updated(node)
 	# Otherwise we will attempt to bootstrap.
 	else
 		root     = getRoot(entity)

@@ -14,7 +14,8 @@ handleEvent = (e)->
 	# Get the full path to scan through for the event.
 	loop
 		eventPath.push(target)
-		break unless document.body is target = target.parentNode
+		target = target.parentNode
+		break unless document.body is target
 
 	# Find the components for each handler.
 	for elem in eventPath

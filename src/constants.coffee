@@ -1,11 +1,11 @@
 module.exports =
+	NODE:      "__node__"
+	COMPONENT: "__component__"
 	BROWSER: typeof document isnt "undefined"
 	SELF_CLOSING: [
 		"area", "base", "br", "col", "command", "embed", "hr", "img", "input",
 		"keygen", "link", "meta", "param", "source", "track", "wbr"
 	]
-	NODE:      "__node__"
-	COMPONENT: "__component__"
 	EVENTS: [
 		"blur", "change", "click", "contextmenu", "copy", "cut", "dblclick", "drag",
 		"dragend", "dragenter", "dragexit", "dragleave", "dragover", "dragstart", "drop",
