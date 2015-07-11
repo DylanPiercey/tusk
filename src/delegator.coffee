@@ -9,11 +9,12 @@ onEvent = (e)->
 	# @see http://code.google.com/p/chromium/issues/detail?id=162270
 	e.stopPropagation = -> e.cancelBubble = true
 	# Dispatch events to registered handlers.
-	loop
+	while target
 		e.currentTarget = target
-		e.preventDefault() if target[NODE]?.events[type]?(e) is false
-		target = target.parentNode
-		break if e.cancelBubble or document.body is target
+		node            = target[NODE]
+		target          = target.parentNode
+		e.preventDefault() if node?.events[type]?(e) is false
+		break if e.cancelBubble
 	return
 
 ###
