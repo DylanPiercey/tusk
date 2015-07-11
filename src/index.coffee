@@ -1,42 +1,27 @@
-Text                          = require("./virtual/text")
-Node                          = require("./virtual/node")
-Component                     = require("./virtual/component")
-{ getRoot, getDiff, flatten } = require("./util")
-{ BROWSER, COMPONENT, NODE }  = require("./constants")
+Node                        = require("./virtual/node")
+{ getRoot, getDiff, isDOM } = require("./util")
+{ NODE }                    = require("./constants")
 
-if BROWSER
-	isDOM = require("is-dom")
-	raf   = require("component-raf")
-	# Bootstrap event listeners.
-	require("./delegator")
+# Bootstrap event listeners if we are in the browser.
+require("./delegator")()
 
 ###
 # Utility to create virtual elements.
-# If the given node is a string then the resulting virtual node will be an html element with a tagname of that string.
-# 	IE: "div" -> <div></div>
+# If the given type is a string then the resulting virtual node will be an html element with a tagname of that string.
+# Otherwise if the type is a function it will be invoked, and the returned nodes used.
 #
 # @param {String|Function} type
 # @param {Object} props
 # @param {Array} children
-# @returns {Promise}->{Node}
+# @returns {Node}
 # @api public
 ###
 tusk = (type, props = {}, children...)->
-	# Separate attrs from events.
-	attrs  = {}
-	events = {}
-	for key, val of props
-		unless key[0...2] is "on" then attrs[key] = val
-		else events[key[2..].toLowerCase()] = val
-
-	# Flatten children into a keyed object.
-	children = flatten(children)
-
 	# Create node based on type.
 	switch typeof type
-		when "object" then new Component(type, attrs, events, children)
-		when "string" then new Node(type, attrs, events, children)
-		else new Error("Tusk: Invalid virtual node type.")
+		when "string" then new Node(type, props, children)
+		when "function" then type(props, [].concat(children...))
+		else throw new Error("Tusk: Invalid virtual node type.")
 
 ###
 # Alias for calling tusk for some older JSX compilers.
@@ -48,25 +33,22 @@ tusk.createElement = tusk
 ###
 # Render a virtual node into the document.
 #
-# @param {Node} node
 # @param {HTMLEntity} entity
+# @param {Function} render
 # @api public
 ###
-tusk.render = (node, entity)->
-	throw new Error("Tusk: Cannot render on the server (use toString).") unless BROWSER
-	throw new Error("Tusk: Container must be a DOM element.") unless isDOM(entity)
-	throw new Error("Tusk: A virtual node is required.") unless node?.isTusk
-	prev = entity[COMPONENT] or entity[NODE]
+tusk.render = (entity, render)->
+	if typeof document is "undefined"
+		throw new Error("Tusk: Cannot render on the server (use toString).")
+
+	unless isDOM(entity)
+		throw new Error("Tusk: Container must be a DOM element.")
+
+	unless (node = render?())?.isTusk
+		throw new Error("Tusk: A render function must be provided that returns a virtual node.")
 
 	# Check if this entity has been rendered into before with this virtual node.
-	if prev
-		raf.cancel(prev.frame) if "frame" of prev
-		prev.frame = raf(->
-			delete prev.frame
-			# Update the virtual node.
-			prev.update(node)
-		)
-
+	if prev = entity.firstChild[NODE] then prev.update(node)
 	# Otherwise we will attempt to bootstrap.
 	else
 		root     = getRoot(entity)
@@ -90,6 +72,8 @@ tusk.render = (node, entity)->
 			root             = getRoot(entity)
 		node.mount(root)
 
-	return
+	# Return a render function prefilled with the previous arugments.
+	# Useful for syncing with an event whilst still having an initial render.
+	-> tusk.render(entity, render)
 
 module.exports = tusk

@@ -1,7 +1,5 @@
 module.exports =
-	NODE:      "__node__"
-	COMPONENT: "__component__"
-	BROWSER: typeof document isnt "undefined"
+	NODE: "__node__"
 	SELF_CLOSING: [
 		"area", "base", "br", "col", "command", "embed", "hr", "img", "input",
 		"keygen", "link", "meta", "param", "source", "track", "wbr"

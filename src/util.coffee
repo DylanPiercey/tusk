@@ -15,6 +15,16 @@ module.exports =
 			.replace(/>/g, "&gt;")
 
 	###
+	# Test if a value is a DOM node in the current window.
+	#
+	# @param {*} val
+	# @returns {Boolean}
+	# @api private
+	###
+	isDOM: (val)->
+		typeof window isnt "undefined" and val instanceof window.Node
+
+	###
 	# Utility to recursively flatten a nested array into a keyed node list.
 	#
 	# @param {Array|Virtual} node
@@ -22,10 +32,12 @@ module.exports =
 	###
 	flatten: flatten = (node, result = {}, acc = val: -1)->
 		if node instanceof Array then flatten(child, result, acc) for child in node
-		else if node?
-			acc.val++
-			result[node?.key or acc.val] = node
-			node.index = acc.val if node.isTusk
+		else
+			acc.val += 1
+			if node?
+				node.index = acc.val if node.isTusk
+				result[node.key or acc.val] = node
+			else result[acc.val] = node
 		result
 
 	###

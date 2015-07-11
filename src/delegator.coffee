@@ -1,37 +1,28 @@
-{ NODE, COMPONENT, EVENTS } = require("./constants")
+{ NODE, EVENTS } = require("./constants")
 
 ###
 # Handle and delegate global events.
 ###
-handleEvent = (e)->
+onEvent = (e)->
 	{ target, type } = e
 	# stopPropagation() fails to set cancelBubble to true in Webkit
 	# @see http://code.google.com/p/chromium/issues/detail?id=162270
 	e.stopPropagation = -> e.cancelBubble = true
-	eventPath         = []
-	handlers          = []
-
-	# Get the full path to scan through for the event.
-	loop
-		eventPath.push(target)
-		target = target.parentNode
-		break unless document.body is target
-
-	# Find the components for each handler.
-	for elem in eventPath
-		component = elem[COMPONENT] if elem[COMPONENT]
-		handler   = elem[NODE]?.events[type]
-		handlers.push([handler, elem, component]) if handler
-
 	# Dispatch events to registered handlers.
-	for [handler, elem, { ctx, setState }] in handlers by -1
-		e.currentTarget = elem
-		e.preventDefault() if handler(e, ctx, setState) is false
-		break if e.cancelBubble
-
+	loop
+		e.currentTarget = target
+		e.preventDefault() if target[NODE]?.events[type](e) is false
+		target = target.parentNode
+		break if e.cancelBubble or document.body is target
 	return
 
 ###
 # Attach all event listeners to the dom for delegation.
 ###
-document.body.addEventListener(eventType, handleEvent, true) for eventType in EVENTS
+module.exports = ->
+	# Skip this if we are not in the browser.
+	return if typeof document is "undefined"
+	# Attach all events at the root level for delegation.
+	for type in EVENTS
+		document.documentElement.addEventListener(type, onEvent, true)
+	return

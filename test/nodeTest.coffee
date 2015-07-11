@@ -1,11 +1,14 @@
 # @cjsx tusk
-assert  = require("assert")
-details = require("../package.json")
+assert    = require("assert")
+details   = require("../package.json")
+tusk      = require("../src/index")
+delegate  = require("../src/delegator")
+
 describe "#{details.name}@#{details.version} - Node", ->
 	require("mocha-jsdom")() if typeof document is "undefined"
 
-	tusk           = null
-	before -> tusk = require("../src/index")
+	# Re Initialize events before each test (mocha-jsdom resets them).
+	beforeEach -> delegate()
 
 	describe "Virtual node", ->
 		it "should be able to create", ->
@@ -104,3 +107,19 @@ describe "#{details.name}@#{details.version} - Node", ->
 			assert.equal(initialChildren[0], updatedChildren[2])
 			assert.equal(initialChildren[1], updatedChildren[0])
 			assert.equal(initialChildren[2], updatedChildren[1])
+
+		it "should be able to bootstrap existing dom", ->
+			div  = document.createElement("div")
+			html = div.innerHTML = String(<div/>)
+			root = div.childNodes[0]
+			tusk.render(div, -> <div/>)
+
+			assert.equal(div.innerHTML, "<div></div>")
+			assert(div.childNodes[0] is root)
+
+		it "should listen for events", (done)->
+			# Reset events
+			require("../src/delegator")()
+			elem = <div onClick={ -> done() }/>.mount(document.createElement("div"))
+			document.body.appendChild(elem)
+			elem.click()

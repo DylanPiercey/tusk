@@ -1,7 +1,7 @@
 {
   "name": "tusk",
-  "version": "0.0.51",
-  "description": "A slim virtual dom implementation.",
+  "version": "0.1.0",
+  "description": "A slim virtual dom implementation for immutable structures.",
   "author": "Dylan Piercey <pierceydylan@gmail.com>",
   "main": "lib/index.js",
   "license": "MIT",
@@ -15,6 +15,8 @@
     "react",
     "tusk",
     "render",
+    "immstruct",
+    "immutable",
     "jsx"
   ],
   "repository": {
@@ -29,14 +31,10 @@
     "gulp-cjsx": "^3.0.0",
     "gulp-header": "^1.2.2",
     "gulp-mocha": "^2.0.1",
+    "immstruct": "^1.4.1",
     "jsdom": "^5.4.1",
     "mocha": "^2.2.5",
     "mocha-jsdom": "^0.3.0",
     "vinyl-source-stream": "^1.1.0"
-  },
-  "dependencies": {
-    "component-emitter": "^1.2.0",
-    "component-raf": "^1.2.0",
-    "is-dom": "^1.0.5"
   }
 }

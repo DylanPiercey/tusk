@@ -6,13 +6,12 @@ A lightweight viritual-dom with a friendly interface.
 [![npm](https://img.shields.io/npm/dm/tusk.svg)](https://www.npmjs.com/package/tusk)
 
 # Why
-Many virtual-dom implementations are bulky and are not optimized for server side rendering.
+Many virtual-dom implementations are bulky and are not optimized for immutable data or server side rendering.
 Currently this is experimental and should not be used in production.
 
 * Lightweight.
 * Minimal API.
-* Functional.
-* Isomorphic.
+* Designed for immutable data.
 * No extra "data-react-id" attributes.
 * No random span's inserted into DOM.
 * Supports JSX.
@@ -29,82 +28,62 @@ npm install tusk
 ```javascript
 /** @jsx tusk */
 let tusk = require('tusk');
+// Using immstruct for example, feel free to replace with immutable.js or others.
+let immstruct = require('immstruct');
+// Define some initial state for the app.
+let struct = immstruct({ i : 0 });
 
-let MyCounter = {
-    // Defaults for component attributes.
-    defaultAttrs: { message: "N/A" },
-
-    // Called on first render for default component state.
-    initialState(component) {
-        let { attrs, events, children } = component;
-        return { i: 0 };
-    },
-
-    // Called before component attaches to dom (and on server).
-    beforeMount(component) {...},
-
-    // Called after the component has attached to the dom.
-    afterMount(component, element, update) {...},
-
-    // Called before an update, return false to cancel the update.
-    shouldUpdate(component, newComponent) {...},
-
-    // Called before a component begins updating.
-    beforeUpdate(component, newComponent) {...},
-
-    // Called after a component has updated.
-    afterUpdate(component, oldComponent, update) {...},
-
-    // Called before a component is detatched from the dom.
-    beforeUnmount(component, element) {...},
-
-    // Custom event handler.
-    handleClick(e, component, update) {
-        let { attrs, events, state, children } = component;
-        update({ i: state.i + 1 });
-    },
-
+function MyCounter (props, children) {
+    let { message, cursor } = props;
+    
+    // Define handlers.
+    let handleClick = (e)=> cursor.update((state)=> state.set("i", state.get("i") + 1));
+    
     // Render the component.
-    render(component) {
-        let { attrs, events, state, children } = component;
+    return (
+        <button onClick={ handleClick }>
+            { message } : { cursor.get('i') }
+        </button>
+    );
+}
 
-        return (
-            <button onClick={ MyCounter.handleClick }>
-                { attrs.message } : { state.i }
-            </button>
-        );
-    }
-};
+// Render into the browser. (Returns a function to re-run the render).
+update = tusk.render(document.body, ()=> {
+    <MyCounter message="Times clicked" cursor={ struct.cursor() }/>
+});
 
-// Render into the browser.
-tusk.render(<MyCounter message="Times clicked"/>, document.body);
+// We can use the update function to re-render when the state changes.
+struct.on("next-animation-frame", update)
 
-// Render into a string (Usually for the server).
-let HTML = String(<MyCounter type="Times clicked"/>);
+// We can also render into a string (Usually for the server).
+let HTML = String(<MyCounter type="Times clicked" cursor={ struct.cursor() }/>);
 // -> "<button>Times clicked : 0</button>"
 ```
 
 # API
-+ **render(component, HTMLEntity)** : Bootstrap or update a virtual `component` inside of an `HTML Entity`.
++ **render(HTMLEntity, render)** : Bootstrap or update a virtual `node` inside of an `HTML Entity`.
 
-    ```javascript
-    tusk.render(<div>Hello World</div>, document.body);
-    ```
+```javascript
+// render must be a function that returns virtual nodes.
+tusk.render(document.body, ()=> <div>Hello World</div>);
+// -> [Function] that will render with the same arguments.
+```
 
-+ **createElement(type, props, children...)** : Create a virtual node/component (Automatically called when using JSX).
++ **createElement(type, props, children...)** : Create a virtual node/component.
 
-    ```javascript
-    let vNode = tusk.createElement("div", { editable: true }, "Hello World");
-    // Or call tusk directly
-    let vNode = tusk("div", { editable: true }, "Hello World");
+```javascript
+// Automatically called when using JSX.
+let vNode = tusk.createElement("div", { editable: true }, "Hello World");
+// Or call tusk directly
+let vNode = tusk("div", { editable: true }, "Hello World");
 
-    // Render to string on the server.
-    vNode.toString(); // '<div editable="true">Hello World</div>';
+// Render to string on the server.
+vNode.toString(); // '<div editable="true">Hello World</div>';
 
-    /**
-     * @params type can also be an object with a render function (shown in example above).
-     */
-    ```
+/**
+ * @params type can also be a function (shown in example above).
+ */
+```
 
 ---
 
