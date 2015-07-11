@@ -11,7 +11,7 @@ onEvent = (e)->
 	# Dispatch events to registered handlers.
 	loop
 		e.currentTarget = target
-		e.preventDefault() if target[NODE]?.events[type](e) is false
+		e.preventDefault() if target[NODE]?.events[type]?(e) is false
 		target = target.parentNode
 		break if e.cancelBubble or document.body is target
 	return
