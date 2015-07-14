@@ -69,8 +69,18 @@ Node::create = ->
 Node::update = (updated)->
 	# Update type requires a re-render.
 	if @type isnt updated.type
-		@_elem.parentNode.replaceChild(updated.create(), @_elem)
-	else
+		{ _elem } = updated
+		@_elem.parentNode.replaceChild((
+			if _elem
+				# If the updated node has been rendered before then we either clone it or reuse it.
+				if document.documentElement.contains(_elem) then _elem.cloneNode()
+				else _elem
+			else updated.create()
+		), @_elem)
+
+	# If we got the same virtual node then we treat it as a no op.
+	# This allows for render memoization.
+	else if this isnt updated
 		# Give updated the dom.
 		updated._elem = @_elem
 		setAttrs(@_elem, @attrs, updated.attrs)
@@ -83,8 +93,8 @@ Node::update = (updated)->
 			@_elem.innerHTML = "" if @innerHTML?
 			setChildren(@_elem, @children, updated.children)
 
-	@_elem[NODE] = updated
-	delete @_elem
+		@_elem[NODE] = updated
+
 	updated
 
 ###
@@ -94,8 +104,7 @@ Node::update = (updated)->
 ###
 Node::remove = ->
 	@_elem.parentNode.removeChild(@_elem)
-	delete @_elem[NODE]
-	delete @_elem
+	return
 
 ###
 # Override node's toString to generate valid html.

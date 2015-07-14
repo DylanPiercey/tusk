@@ -45,9 +45,15 @@ Text::update = (updated)->
 		updated._elem = @_elem
 		@_elem.nodeValue = updated.value if updated.value isnt @value
 	else
-		@_elem.parentNode.replaceChild(updated.create(), @_elem)
+		{ _elem } = updated
+		@_elem.parentNode.replaceChild((
+			if _elem
+				# If the updated node has been rendered before then we either clone it or reuse it.
+				if document.documentElement.contains(_elem) then _elem.cloneNode()
+				else _elem
+			else updated.create()
+		), @_elem)
 
-	delete @_elem
 	updated
 
 ###
@@ -55,7 +61,6 @@ Text::update = (updated)->
 ###
 Text::remove = ->
 	@_elem.parentNode.removeChild(@_elem)
-	delete @_elem
 
 ###
 # Return text nodes value.
