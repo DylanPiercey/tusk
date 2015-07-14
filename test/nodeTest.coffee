@@ -112,7 +112,7 @@ describe "#{details.name}@#{details.version} - Node", ->
 			div  = document.createElement("div")
 			html = div.innerHTML = String(<div/>)
 			root = div.childNodes[0]
-			tusk.render(div, -> <div/>)
+			tusk.render(div, <div/>)
 
 			assert.equal(div.innerHTML, "<div></div>")
 			assert(div.childNodes[0] is root)

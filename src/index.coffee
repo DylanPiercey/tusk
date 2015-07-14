@@ -5,6 +5,9 @@ Node                        = require("./virtual/node")
 # Bootstrap event listeners if we are in the browser.
 require("./delegator")()
 
+# Stores the current context for create element. Can be changed via "withContext"
+renderContext = undefined
+
 ###
 # Utility to create virtual elements.
 # If the given type is a string then the resulting virtual node will be an html element with a tagname of that string.
@@ -20,7 +23,7 @@ tusk = (type, props = {}, children...)->
 	# Create node based on type.
 	switch typeof type
 		when "string" then new Node(type, props, children)
-		when "function" then type(props, [].concat(children...))
+		when "function" then type(props, [].concat(children...), renderContext)
 		else throw new Error("Tusk: Invalid virtual node type.")
 
 ###
@@ -34,18 +37,18 @@ tusk.createElement = tusk
 # Render a virtual node into the document.
 #
 # @param {HTMLEntity} entity
-# @param {Function} render
+# @param {Virtual} node
 # @api public
 ###
-tusk.render = (entity, render)->
+tusk.render = (entity, node)->
 	if typeof document is "undefined"
 		throw new Error("Tusk: Cannot render on the server (use toString).")
 
 	unless isDOM(entity)
 		throw new Error("Tusk: Container must be a DOM element.")
 
-	unless (node = render?())?.isTusk
-		throw new Error("Tusk: A render function must be provided that returns a virtual node.")
+	unless node.isTusk
+		throw new Error("Tusk: Can only render a virtual node.")
 
 	# Check if this entity has been rendered into before with this virtual node.
 	if prev = entity.firstChild[NODE] then prev.update(node)
@@ -71,9 +74,21 @@ tusk.render = (entity, render)->
 			entity.innerHTML = curHTML
 			root             = getRoot(entity)
 		node.mount(root)
+	return
 
-	# Return a render function prefilled with the previous arugments.
-	# Useful for syncing with an event whilst still having an initial render.
-	-> tusk.render(entity, render)
+###
+# Utility to attach context to #createElement for sideways data loading.
+# The provided renderer will be immediately invoked.
+#
+# @params {*} context
+# @params {Function} renderer
+# @returns {Function}
+###
+tusk.with = (context, renderer)->
+	renderContext = context
+	unless (node = renderer?())?.isTusk
+		throw new Error("Tusk: withContext requires a render function that returns a virtual node.")
+	renderContext = undefined
+	node
 
 module.exports = tusk

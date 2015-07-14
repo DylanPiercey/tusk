@@ -1,3 +1,5 @@
+{ NODE } = require("./constants")
+
 module.exports =
 	###
 	# Escape special characters in the given string of html.
@@ -64,6 +66,27 @@ module.exports =
 		start = Math.max(0, i - 20)
 		end   = start + 80
 		[a[start...Math.min(end, a.length)], b[start...Math.min(end, b.length)]]
+
+	###
+	# Utility to replace one node with another.
+	#
+	# @params {HTMLEntity} elem
+	# @params {Object} prev
+	# @params {Object} next
+	# @api private
+	###
+	replaceNode: (prev, next)->
+		{ _elem: prevElem } = prev
+		{ _elem: newElem }  = next
+		newElem = (
+			if newElem
+				# If the updated node has been rendered before then we either clone it or reuse it.
+				if document.documentElement.contains(newElem) then newElem.cloneNode()
+				else newElem
+			else next.create()
+		)
+		newElem[NODE] = next
+		prevElem.parentNode.replaceChild(newElem, prevElem)
 
 	###
 	# Utility that will update or set a given virtual nodes attributes.

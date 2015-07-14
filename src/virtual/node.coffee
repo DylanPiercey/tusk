@@ -1,6 +1,6 @@
-Text                                           = require("./text")
-{ escapeHTML, flatten, setAttrs, setChildren } = require("../util")
-{ SELF_CLOSING, NODE }                         = require("../constants")
+Text                                                        = require("./text")
+{ escapeHTML, flatten, replaceNode, setAttrs, setChildren } = require("../util")
+{ SELF_CLOSING, NODE }                                      = require("../constants")
 
 ###
 # Creates a virtual dom node that can be later transformed into a real node and updated.
@@ -68,20 +68,12 @@ Node::create = ->
 ###
 Node::update = (updated)->
 	# Update type requires a re-render.
-	if @type isnt updated.type
-		{ _elem } = updated
-		@_elem.parentNode.replaceChild((
-			if _elem
-				# If the updated node has been rendered before then we either clone it or reuse it.
-				if document.documentElement.contains(_elem) then _elem.cloneNode()
-				else _elem
-			else updated.create()
-		), @_elem)
-
+	if @type isnt updated.type then replaceNode(@, updated)
 	# If we got the same virtual node then we treat it as a no op.
 	# This allows for render memoization.
 	else if this isnt updated
 		# Give updated the dom.
+		@_elem[NODE]  = updated
 		updated._elem = @_elem
 		setAttrs(@_elem, @attrs, updated.attrs)
 		if updated.innerHTML?
@@ -92,9 +84,6 @@ Node::update = (updated)->
 			# If we are going from innerHTML to nodes then we must clean up.
 			@_elem.innerHTML = "" if @innerHTML?
 			setChildren(@_elem, @children, updated.children)
-
-		@_elem[NODE] = updated
-
 	updated
 
 ###

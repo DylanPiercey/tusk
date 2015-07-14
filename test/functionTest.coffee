@@ -7,7 +7,7 @@ delegate  = require("../src/delegator")
 
 describe "#{details.name}@#{details.version} - Function", ->
 	require("mocha-jsdom")() if typeof document is "undefined"
-	
+
 	# Re Initialize events before each test (mocha-jsdom resets them).
 	beforeEach -> delegate()
 
@@ -40,6 +40,12 @@ describe "#{details.name}@#{details.version} - Function", ->
 				</div>
 			""".replace(/\t|\n/g, ""))
 
+		it "should be able to set a context", ->
+			MyComponent = (props, children, context)->
+				<div>{ context }</div>
+
+			assert.equal(tusk.with(1, -> <MyComponent/>), "<div>1</div>")
+
 	describe "Document Component", ->
 		it "should render with immutable state", ->
 			struct = immstruct({ i: 0 })
@@ -49,15 +55,20 @@ describe "#{details.name}@#{details.version} - Function", ->
 					cursor.update((state)->
 						state.set("i", state.get("i") + 1)
 					)
-	
+
 				<button onClick={ handleClick }>
 					{ message } : { cursor.get('i') }
 				</button>
 
 			document.body.innerHTML = <MyCounter message="Times clicked" cursor={ struct.cursor() }/>
-			struct.on("swap", tusk.render(document.body, ->
-				<MyCounter message="Times clicked" cursor={ struct.cursor() }/>
-			))
+
+			render = ->
+				tusk.render(document.body,
+					<MyCounter message="Times clicked" cursor={ struct.cursor() }/>
+				)
+
+			render()
+			struct.on("swap", render)
 			document.body.firstChild.click() for i in [0...5]
 
 			assert.equal(document.body.innerHTML, "<button>Times clicked : 5</button>")

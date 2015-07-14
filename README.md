@@ -35,10 +35,10 @@ let struct = immstruct({ i : 0 });
 
 function MyCounter (props, children) {
     let { message, cursor } = props;
-    
+
     // Define handlers.
     let handleClick = (e)=> cursor.update((state)=> state.set("i", state.get("i") + 1));
-    
+
     // Render the component.
     return (
         <button onClick={ handleClick }>
@@ -47,13 +47,17 @@ function MyCounter (props, children) {
     );
 }
 
-// Render into the browser. (Returns a function to re-run the render).
-update = tusk.render(document.body, ()=> {
-    <MyCounter message="Times clicked" cursor={ struct.cursor() }/>
-});
+function render () {
+    tusk.render(document.body,
+        <MyCounter message="Times clicked" cursor={ struct.cursor() }/>
+    )
+}
 
-// We can use the update function to re-render when the state changes.
-struct.on("next-animation-frame", update)
+// Initial render
+render()
+
+// We can use the render function to re-render when the state changes.
+struct.on("next-animation-frame", render)
 
 // We can also render into a string (Usually for the server).
 let HTML = String(<MyCounter type="Times clicked" cursor={ struct.cursor() }/>);
@@ -64,9 +68,21 @@ let HTML = String(<MyCounter type="Times clicked" cursor={ struct.cursor() }/>);
 + **render(HTMLEntity, render)** : Bootstrap or update a virtual `node` inside of an `HTML Entity`.
 
 ```javascript
-// render must be a function that returns virtual nodes.
-tusk.render(document.body, ()=> <div>Hello World</div>);
-// -> [Function] that will render with the same arguments.
+tusk.render(document.body, <div>Hello World</div>);
+// -> document.body.innerHTML === "<div>Hello World</div>"
+```
+
++ **with(context, renderer)** : Gives all components inside a render function some external `context`.
+
+
+```javascript
+// renderer must be a function that returns a virtual node.
+function MyComponent (props, children, context) {
+    <div>External data: { context }</div>
+}
+
+String(tusk.with(1, ()=> <MyComponent/>));
+//-> "<div>External Data: 1</div>"
 ```
 
 + **createElement(type, props, children...)** : Create a virtual node/component.
@@ -86,6 +102,30 @@ vNode.toString(); // '<div editable="true">Hello World</div>';
 ```
 
 ---
+
+# Advanced Performance
+In React and many other virtual doms "shouldUpdate" is a common theme for performance.
+Tusk **does not** feature shouldUpdate and opts for a more performant, simpler, and well known approach: **memoization**.
+
+Basically Tusk will never re-render when given the same node twice, meaning the following will only render once.
+Tusk will also intelegently cloneNodes if memoized nodes are inserted in multiple places throughout the document.
+
+```javascript
+let _ = require("lodash");
+let i = 0;
+
+let MyDiv = _.memoize(function () {
+    console.log(++i);
+    return (
+        <div>Hello World</div>
+    );
+});
+
+tusk.render(document.body, myDiv); // render div into body.
+tusk.render(document.body, myDiv); // noop
+tusk.render(document.body, myDiv); // noop
+i; // -> 1
+```
 
 ### Contributions
 
