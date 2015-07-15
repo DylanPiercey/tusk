@@ -23,7 +23,7 @@ Node = (@type, props, children)->
 		else @events[key[2..].toLowerCase()] = val
 
 	# Check if the node should have any children.
-	if SELF_CLOSING.indexOf(@type) is -1 and not @innerHTML
+	unless @type in SELF_CLOSING or @innerHTML?
 		# Flatten children into a keyed object.
 		@children = flatten(children)
 		# Cast non-virtuals to text nodes.
@@ -41,11 +41,11 @@ Node::isTusk = true
 # @api private
 ###
 Node::mount = (elem)->
-	{ childNodes } = elem
+	@_elem = { childNodes } = elem
+	elem[NODE] = @
 	# Boostrap children.
 	child.mount(childNodes[child.index or key]) for key, child of @children unless @innerHTML?
-	elem[NODE] = @
-	@_elem     = elem
+	elem
 
 ###
 # Creates a real node out of the virtual node and returns it.
@@ -55,12 +55,12 @@ Node::mount = (elem)->
 ###
 Node::create = ->
 	# Create a real dom element.
-	elem = document.createElement(@type)
-	setAttrs(elem, @attrs)
-	unless @innerHTML? then setChildren(elem, @children)
-	else elem.innerHTML = @innerHTML
+	@_elem = elem = document.createElement(@type)
 	elem[NODE] = @
-	@_elem     = elem
+	setAttrs(elem, @attrs)
+	if @innerHTML? then elem.innerHTML = @innerHTML
+	else setChildren(elem, @children)
+	elem
 
 ###
 # Given a different virtual node it will compare the nodes an update the real node accordingly.
@@ -85,7 +85,7 @@ Node::update = (updated)->
 				@_elem.innerHTML = updated.innerHTML
 		else
 			# If we are going from innerHTML to nodes then we must clean up.
-			@_elem.innerHTML = "" if @innerHTML?
+			@_elem.removeChild(@_elem.firstChild) while @_elem.firstChild if @innerHTML?
 			setChildren(@_elem, @children, updated.children)
 	updated
 
@@ -96,7 +96,6 @@ Node::update = (updated)->
 ###
 Node::remove = ->
 	@_elem.parentNode.removeChild(@_elem)
-	return
 
 ###
 # Override node's toString to generate valid html.
@@ -109,11 +108,11 @@ Node::toString = ->
 	attrs += " #{key}=\"#{escapeHTML(val)}\"" for key, val of @attrs
 
 	# Use innerHTML or children.
-	if @innerHTML then children = @innerHTML
+	if @innerHTML? then children = @innerHTML
 	else children += child for key, child of @children
 
 	# Check for self closing nodes.
-	if SELF_CLOSING.indexOf(@type) is -1 then "<#{@type + attrs}>#{children}</#{@type}>"
-	else "<#{@type + attrs}>"
+	if @type in SELF_CLOSING then "<#{@type + attrs}>"
+	else "<#{@type + attrs}>#{children}</#{@type}>"
 
 module.exports = Node

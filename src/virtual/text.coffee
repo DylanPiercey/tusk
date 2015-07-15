@@ -19,10 +19,10 @@ Text::isTusk = true
 # @api private
 ###
 Text::mount = (elem)->
-	{ nodeValue } = elem
+	@_elem = { nodeValue } = elem
 	# Use Text.splitText(index) to split up text-nodes from server.
 	elem.splitText(nodeValue.indexOf(@value) + @value.length) if @value isnt nodeValue
-	@_elem = elem
+	elem
 
 ###
 # Creates a real node out of the virtual node and returns it.
