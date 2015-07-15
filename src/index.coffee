@@ -50,14 +50,15 @@ tusk.render = (entity, node)->
 	unless node.isTusk
 		throw new Error("Tusk: Can only render a virtual node.")
 
+	root = getRoot(entity)
+	prev = root[NODE]
+
 	# Check if this entity has been rendered into before with this virtual node.
-	if prev = entity.firstChild[NODE] then prev.update(node)
+	if prev then prev.update(node)
 	# Otherwise we will attempt to bootstrap.
 	else
-		root     = getRoot(entity)
 		curHTML  = node.toString()
 		prevHTML = root?.outerHTML
-
 		# Attempt to see if we can bootstrap off of existing dom.
 		unless curHTML is prevHTML
 			if prevHTML?
@@ -72,7 +73,6 @@ tusk.render = (entity, node)->
 					#{client}
 				""")
 			entity.innerHTML = curHTML
-			root             = getRoot(entity)
 		node.mount(root)
 	return
 

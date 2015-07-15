@@ -51,7 +51,7 @@ module.exports =
 	###
 	getRoot: (entity)->
 		if entity.tagName is "HTML" then entity
-		else entity.childNodes[0]
+		else entity.firstChild
 
 	###
 	# Returns a chunk surrounding the difference between two strings, useful for debugging.
@@ -81,12 +81,13 @@ module.exports =
 		newElem = (
 			if newElem
 				# If the updated node has been rendered before then we either clone it or reuse it.
-				if document.documentElement.contains(newElem) then newElem.cloneNode()
+				if document.contains(newElem) then newElem.cloneNode()
 				else newElem
 			else next.create()
 		)
 		newElem[NODE] = next
 		prevElem.parentNode.replaceChild(newElem, prevElem)
+		return
 
 	###
 	# Utility that will update or set a given virtual nodes attributes.
