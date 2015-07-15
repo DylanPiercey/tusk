@@ -23,7 +23,9 @@ Node = (@type, props, children)->
 		else @events[key[2..].toLowerCase()] = val
 
 	# Check if the node should have any children.
-	unless @type in SELF_CLOSING or @innerHTML?
+	if @type in SELF_CLOSING or @innerHTML?
+		@children = {}
+	else
 		# Flatten children into a keyed object.
 		@children = flatten(children)
 		# Cast non-virtuals to text nodes.
