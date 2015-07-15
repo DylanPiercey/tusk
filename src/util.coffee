@@ -5,7 +5,7 @@ module.exports =
 	# Escape special characters in the given string of html.
 	#
 	# @param {String} html
-	# @returns {String}
+	# @return {String}
 	# @api private
 	###
 	escapeHTML: (html)->
@@ -20,7 +20,7 @@ module.exports =
 	# Test if a value is a DOM node in the current window.
 	#
 	# @param {*} val
-	# @returns {Boolean}
+	# @return {Boolean}
 	# @api private
 	###
 	isDOM: (val)->
@@ -30,7 +30,7 @@ module.exports =
 	# Utility to recursively flatten a nested array into a keyed node list.
 	#
 	# @param {Array|Virtual} node
-	# @returns {Object}
+	# @return {Object}
 	###
 	flatten: flatten = (node, result = {}, acc = val: -1)->
 		if node instanceof Array then flatten(child, result, acc) for child in node
@@ -45,8 +45,8 @@ module.exports =
 	###
 	# Returns the root node for an element (this is different for the documentElement).
 	#
-	# @params {HTMLEntity} entity
-	# @returns {HTMLEntity}
+	# @param {HTMLEntity} entity
+	# @return {HTMLEntity}
 	# @api private
 	###
 	getRoot: (entity)->
@@ -58,7 +58,7 @@ module.exports =
 	#
 	# @param {String} a
 	# @param {String} b
-	# @returns {Array<String>}
+	# @return {Array<String>}
 	# @api private
 	###
 	getDiff: (a, b)->
@@ -68,32 +68,38 @@ module.exports =
 		[a[start...Math.min(end, a.length)], b[start...Math.min(end, b.length)]]
 
 	###
+	# Utility to extract out or create an elem from an existing node.
+	#
+	# @param {Virtual} node
+	# @return {HTMLEntity}
+	###
+	createElem: createElem = (node)->
+		elem = node._elem
+		elem = (
+			unless elem then node.create()
+			else if document.contains(elem) then elem.cloneNode(true)
+			else elem
+		)
+		elem[NODE] = node
+		elem
+
+	###
 	# Utility to replace one node with another.
 	#
-	# @params {HTMLEntity} elem
-	# @params {Object} prev
-	# @params {Object} next
+	# @param {HTMLEntity} elem
+	# @param {Object} prev
+	# @param {Object} next
 	# @api private
 	###
-	replaceNode: (prev, next)->
-		{ _elem: prevElem } = prev
-		{ _elem: newElem }  = next
-		newElem = (
-			if newElem
-				# If the updated node has been rendered before then we either clone it or reuse it.
-				if document.contains(newElem) then newElem.cloneNode()
-				else newElem
-			else next.create()
-		)
-		newElem[NODE] = next
-		prevElem.parentNode.replaceChild(newElem, prevElem)
+	replaceNode: ({ _elem }, next)->
+		_elem.parentNode.replaceChild(createElem(next), _elem)
 		return
 
 	###
 	# Utility that will update or set a given virtual nodes attributes.
-	# @params {HTMLEntity} elem
-	# @params {Object} prev
-	# @params {Object} next
+	# @param {HTMLEntity} elem
+	# @param {Object} prev
+	# @param {Object} next
 	# @api private
 	###
 	setAttrs: (elem, prev, next)->
@@ -110,10 +116,10 @@ module.exports =
 	###
 	# Utility that will update or set a given virtual nodes children.
 	#
-	# @params {HTMLEntity} elem
-	# @params {Object} prev
-	# @params {Object} next
-	# @returns {Node}
+	# @param {HTMLEntity} elem
+	# @param {Object} prev
+	# @param {Object} next
+	# @return {Node}
 	# @api private
 	###
 	setChildren: (elem, prev, next)->
@@ -132,7 +138,7 @@ module.exports =
 				if prevChild.index isnt child.index
 					moved[child.index] = childNodes[prevChild.index]
 			# Add new nodes.
-			else elem.appendChild(child.create())
+			else elem.appendChild(createElem(child))
 
 		# Remove old nodes
 		child.remove() for key, child of prev when not key of next
