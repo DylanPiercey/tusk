@@ -22,10 +22,13 @@ Node = (@type, props, children)->
 		unless key[0...2] is "on" then @attrs[key] = val
 		else @events[key[2..].toLowerCase()] = val
 
-	# Flatten children into a keyed object.
-	@children = flatten(children)
-	# Cast non-virtuals to text nodes.
-	@children[key] = new Text(child) for key, child of @children when not child?.isTusk
+	# Check if the node should have any children.
+	if SELF_CLOSING.indexOf(@type) is -1 and not @innerHTML
+		# Flatten children into a keyed object.
+		@children = flatten(children)
+		# Cast non-virtuals to text nodes.
+		@children[key] = new Text(child) for key, child of @children when not child?.isTusk
+
 	return
 
 # Mark instances as a tusk nodes.
@@ -110,7 +113,7 @@ Node::toString = ->
 	else children += child for key, child of @children
 
 	# Check for self closing nodes.
-	if SELF_CLOSING.indexOf(@type) isnt -1 then "<#{@type + attrs}>"
-	else "<#{@type + attrs}>#{children}</#{@type}>"
+	if SELF_CLOSING.indexOf(@type) is -1 then "<#{@type + attrs}>#{children}</#{@type}>"
+	else "<#{@type + attrs}>"
 
 module.exports = Node
