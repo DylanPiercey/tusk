@@ -55,12 +55,11 @@ module.exports =
 	# Utility to extract out or create an elem from an existing node.
 	#
 	# @param {Virtual} node
-	# @param {String} defaultNS
 	###
-	createNode: createNode = (node, defaultNS)->
+	createNode: createNode = (node)->
 		elem = node._elem
 		elem = (
-			unless elem then node.create(defaultNS)
+			unless elem then node.create()
 			else if document.documentElement.contains(elem) then elem.cloneNode(true)
 			else elem
 		)
@@ -120,7 +119,7 @@ module.exports =
 				# Skip re-insert if child hasn't moved.
 				continue if prevChild.index is child.index
 			# Create the node if it is new.
-			else createNode(child, elem.namespaceURI)
+			else createNode(child)
 			# Insert or move the node.
 			elem.insertBefore(child._elem, elem.childNodes[child.index])
 
