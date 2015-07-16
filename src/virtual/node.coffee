@@ -1,6 +1,21 @@
-Text                                                        = require("./text")
-{ escapeHTML, flatten, replaceNode, setAttrs, setChildren } = require("../util")
-{ SELF_CLOSING, NODE }                                      = require("../constants")
+Text                                               = require("./text")
+{ escapeHTML, replaceNode, setAttrs, setChildren } = require("../util")
+{ SELF_CLOSING, NODE }                             = require("../constants")
+
+###
+# Utility to recursively flatten a nested array into a keyed node list and cast non-nodes to Text.
+#
+# @param {Array|Virtual} node
+# @return {Object}
+###
+normalizeChildren = (node, result = {}, acc = val: -1)->
+	if node instanceof Array then normalizeChildren(child, result, acc) for child in node
+	else
+		acc.val   += 1
+		node       = new Text(node) unless node?.isTusk
+		node.index = acc.val if node.isTusk
+		result[node.key or acc.val] = node
+	result
 
 ###
 # Creates a virtual dom node that can be later transformed into a real node and updated.
@@ -22,14 +37,11 @@ Node = (@type, props, children)->
 		unless key[0...2] is "on" then @attrs[key] = val
 		else @events[key[2..].toLowerCase()] = val
 
-	# Check if the node should have any children.
-	if @type in SELF_CLOSING or @innerHTML?
-		@children = {}
-	else
-		# Flatten children into a keyed object.
-		@children = flatten(children)
-		# Cast non-virtuals to text nodes.
-		@children[key] = new Text(child) for key, child of @children when not child?.isTusk
+	@children = (
+		# Check if the node should have any children.
+		if @innerHTML? or @type in SELF_CLOSING then {}
+		else normalizeChildren(children)
+	)
 
 	return
 

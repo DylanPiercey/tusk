@@ -27,22 +27,6 @@ module.exports =
 		typeof window isnt "undefined" and val instanceof window.Node
 
 	###
-	# Utility to recursively flatten a nested array into a keyed node list.
-	#
-	# @param {Array|Virtual} node
-	# @return {Object}
-	###
-	flatten: flatten = (node, result = {}, acc = val: -1)->
-		if node instanceof Array then flatten(child, result, acc) for child in node
-		else
-			acc.val += 1
-			if node?
-				node.index = acc.val if node.isTusk
-				result[node.key or acc.val] = node
-			else result[acc.val] = node
-		result
-
-	###
 	# Returns the root node for an element (this is different for the documentElement).
 	#
 	# @param {HTMLEntity} entity
@@ -71,17 +55,31 @@ module.exports =
 	# Utility to extract out or create an elem from an existing node.
 	#
 	# @param {Virtual} node
-	# @return {HTMLEntity}
 	###
-	createElem: createElem = (node)->
+	createNode: createNode = (node)->
 		elem = node._elem
 		elem = (
 			unless elem then node.create()
-			else if document.contains(elem) then elem.cloneNode(true)
+			else if document.documentElement.contains(elem) then elem.cloneNode(true)
 			else elem
 		)
 		elem[NODE] = node
+		node._elem  = elem
 		elem
+
+	###
+	# Utility to insert or append a node at a given index.
+	#
+	# @param {HTMLEntity} parent
+	# @param {Virtual} node
+	# @param {Number?} index
+	###
+	insertNode: insertNode = (parent, { _elem }, index)->
+		{ childNodes } = parent
+		{ length }     = childNodes
+		index         ?= length
+		if index >= length then parent.appendChild(_elem)
+		else parent.insertBefore(_elem, childNodes[index])
 
 	###
 	# Utility to replace one node with another.
@@ -92,8 +90,7 @@ module.exports =
 	# @api private
 	###
 	replaceNode: ({ _elem }, next)->
-		_elem.parentNode.replaceChild(createElem(next), _elem)
-		return
+		_elem.parentNode.replaceChild(createNode(next), _elem)
 
 	###
 	# Utility that will update or set a given virtual nodes attributes.
@@ -123,25 +120,22 @@ module.exports =
 	# @api private
 	###
 	setChildren: (elem, prev, next)->
-		moved          = {}
-		{ childNodes } = elem
-
 		unless next
 			next = prev
 			prev = {}
 
+		# Update new or existing nodes.
 		for key, child of next
-			# Update existing nodes.
+			# Attempt to update an existing node.
 			if key of prev
 				(prevChild = prev[key]).update(child)
-				# Mark a node as moved if it's index has changed.
-				if prevChild.index isnt child.index
-					moved[child.index] = childNodes[prevChild.index]
-			# Add new nodes.
-			else elem.appendChild(createElem(child))
+				# Skip re-insert if child hasn't moved.
+				continue if prevChild.index is child.index
+			# Create the node if it is new.
+			else createNode(child)
+			# Insert or move the node.
+			insertNode(elem, child, child.index)
 
 		# Remove old nodes
 		child.remove() for key, child of prev when not key of next
-		# Reposition moved nodes
-		elem.insertBefore(childEl, childNodes[pos]) for pos, childEl of moved
 		return
