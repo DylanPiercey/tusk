@@ -1,5 +1,9 @@
 module.exports =
 	NODE: "__node__"
+	NAMESPACES:
+		HTML:    "http://www.w3.org/1999/xhtml"
+		MATH_ML: "http://www.w3.org/1998/Math/MathML"
+		SVG:     "http://www.w3.org/2000/svg"
 	SELF_CLOSING: [
 		"area", "base", "br", "col", "command", "embed", "hr", "img", "input",
 		"keygen", "link", "meta", "param", "source", "track", "wbr"

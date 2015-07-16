@@ -55,31 +55,18 @@ module.exports =
 	# Utility to extract out or create an elem from an existing node.
 	#
 	# @param {Virtual} node
+	# @param {String} defaultNS
 	###
-	createNode: createNode = (node)->
+	createNode: createNode = (node, defaultNS)->
 		elem = node._elem
 		elem = (
-			unless elem then node.create()
+			unless elem then node.create(defaultNS)
 			else if document.documentElement.contains(elem) then elem.cloneNode(true)
 			else elem
 		)
 		elem[NODE] = node
 		node._elem  = elem
 		elem
-
-	###
-	# Utility to insert or append a node at a given index.
-	#
-	# @param {HTMLEntity} parent
-	# @param {Virtual} node
-	# @param {Number?} index
-	###
-	insertNode: insertNode = (parent, { _elem }, index)->
-		{ childNodes } = parent
-		{ length }     = childNodes
-		index         ?= length
-		if index >= length then parent.appendChild(_elem)
-		else parent.insertBefore(_elem, childNodes[index])
 
 	###
 	# Utility to replace one node with another.
@@ -91,6 +78,7 @@ module.exports =
 	###
 	replaceNode: ({ _elem }, next)->
 		_elem.parentNode.replaceChild(createNode(next), _elem)
+		return
 
 	###
 	# Utility that will update or set a given virtual nodes attributes.
@@ -132,9 +120,9 @@ module.exports =
 				# Skip re-insert if child hasn't moved.
 				continue if prevChild.index is child.index
 			# Create the node if it is new.
-			else createNode(child)
+			else createNode(child, elem.namespaceURI)
 			# Insert or move the node.
-			insertNode(elem, child, child.index)
+			elem.insertBefore(child._elem, elem.childNodes[child.index])
 
 		# Remove old nodes
 		child.remove() for key, child of prev when not key of next

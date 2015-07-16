@@ -1,21 +1,24 @@
 Text                                               = require("./text")
 { escapeHTML, replaceNode, setAttrs, setChildren } = require("../util")
-{ SELF_CLOSING, NODE }                             = require("../constants")
+{ SELF_CLOSING, NODE, NAMESPACES }                 = require("../constants")
 
 ###
 # Utility to recursively flatten a nested array into a keyed node list and cast non-nodes to Text.
 #
-# @param {Array|Virtual} node
+# @param {Array|Virtual} child
+# @param {String} namespaceURI
 # @return {Object}
 ###
-normalizeChildren = (node, result = {}, acc = val: -1)->
-	if node instanceof Array then normalizeChildren(child, result, acc) for child in node
+normalizeChildren = (child, namespaceURI, result = {}, acc = val: -1)->
+	if child instanceof Array
+		normalizeChildren(i, namespaceURI, result, acc) for i in child
 	else
-		acc.val   += 1
-		node       = new Text(node) unless node?.isTusk
-		node.index = acc.val if node.isTusk
-		result[node.key or acc.val] = node
-	result
+		child               = new Text(child) unless child?.isTusk # Cast non-nodes to text.
+		acc.val            += 1
+		child.index         = acc.val # Set chilld position in node list.
+		child.namespaceURI ?= namespaceURI # Inherit parents namespace.
+		result[child.key or acc.val] = child
+	return result
 
 ###
 # Creates a virtual dom node that can be later transformed into a real node and updated.
@@ -25,10 +28,15 @@ normalizeChildren = (node, result = {}, acc = val: -1)->
 # @constructor
 ###
 Node = (@type, props, children)->
-	@key       = props.key
-	@innerHTML = props.innerHTML
-	delete props.key
-	delete props.innerHTML
+	# Pull out special props.
+	@key       = props.key; delete props.key
+	@innerHTML = props.innerHTML; delete props.innerHTML
+
+	# Set implicit namespace for element.
+	@namespaceURI = (
+		if @type is "svg" then NAMESPACES.SVG
+		else if @type is "math" then NAMESPACES.MATH_ML
+	)
 
 	# Separate attrs from events.
 	@attrs  = {}
@@ -37,10 +45,11 @@ Node = (@type, props, children)->
 		unless key[0...2] is "on" then @attrs[key] = val
 		else @events[key[2..].toLowerCase()] = val
 
+	# Set child nodes.
 	@children = (
 		# Check if the node should have any children.
 		if @innerHTML? or @type in SELF_CLOSING then {}
-		else normalizeChildren(children)
+		else normalizeChildren(children, @namespaceURI)
 	)
 
 	return
@@ -64,12 +73,12 @@ Node::mount = (elem)->
 ###
 # Creates a real node out of the virtual node and returns it.
 #
-# @return HTMLElement
+# @return {HTMLElement}
 # @api private
 ###
 Node::create = ->
 	# Create a real dom element.
-	@_elem = elem = document.createElement(@type)
+	@_elem = elem = document.createElementNS(@namespaceURI or NAMESPACES.HTML, @type)
 	elem[NODE] = @
 	setAttrs(elem, @attrs)
 	if @innerHTML? then elem.innerHTML = @innerHTML

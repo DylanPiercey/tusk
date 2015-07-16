@@ -1,8 +1,9 @@
 # @cjsx tusk
-assert    = require("assert")
-details   = require("../package.json")
-tusk      = require("../src/index")
-delegate  = require("../src/delegator")
+assert         = require("assert")
+details        = require("../package.json")
+tusk           = require("../src/index")
+delegate       = require("../src/delegator")
+{ NAMESPACES } = require("../src/constants")
 
 describe "#{details.name}@#{details.version} - Node", ->
 	require("mocha-jsdom")() if typeof document is "undefined"
@@ -33,6 +34,11 @@ describe "#{details.name}@#{details.version} - Node", ->
 			assert.equal(node.innerHTML, "<span></span>")
 			assert.equal(String(node), "<div><span></span></div>")
 
+		it "should inherit parents namespace", ->
+			node = <svg><circle/></svg>
+			assert.equal(node.namespaceURI, NAMESPACES.SVG)
+			assert.equal(node.children[0].namespaceURI, NAMESPACES.SVG)
+
 	describe "Document node", ->
 		it "should be able to create", ->
 			node = <div/>
@@ -61,6 +67,13 @@ describe "#{details.name}@#{details.version} - Node", ->
 
 			assert.equal(elem.nodeName, "DIV")
 			assert.equal(elem.outerHTML, '<div><span></span></div>')
+
+		it "should inherit parents namespace", ->
+			parent = document.createElement("div")
+			node = <svg><circle/></svg>
+			elem = node.create()
+			assert.equal(elem.namespaceURI, NAMESPACES.SVG)
+			assert.equal(elem.firstChild.namespaceURI, NAMESPACES.SVG)
 
 		it "should be able to update", ->
 			parent = document.createElement("div")
