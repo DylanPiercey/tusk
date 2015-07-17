@@ -5,7 +5,7 @@
 # @param {String} value
 # @constructor
 ###
-Text = (value = "")->
+Text = (value = " ")->
 	@value = String(value)
 	return
 
