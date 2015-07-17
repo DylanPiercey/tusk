@@ -124,5 +124,5 @@ module.exports =
 			elem.insertBefore(child._elem, elem.childNodes[child.index])
 
 		# Remove old nodes
-		child.remove() for key, child of prev when not key of next
+		child.remove() for key, child of prev when key not of next
 		return

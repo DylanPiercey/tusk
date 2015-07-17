@@ -65,7 +65,7 @@ let HTML = String(<MyCounter type="Times clicked" cursor={ struct.cursor() }/>);
 ```
 
 # API
-+ **render(HTMLEntity, render)** : Bootstrap or update a virtual `node` inside of an `HTML Entity`.
++ **render(HTMLEntity, node)** : Bootstrap or update a virtual `node` inside of an `HTML Entity`.
 
 ```javascript
 tusk.render(document.body, <div>Hello World</div>);
