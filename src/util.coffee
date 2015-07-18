@@ -35,7 +35,7 @@ module.exports =
 	###
 	getRoot: (entity)->
 		if entity.tagName is "HTML" then entity
-		else entity.firstChild
+		else entity.firstChild or {}
 
 	###
 	# Returns a chunk surrounding the difference between two strings, useful for debugging.

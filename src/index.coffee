@@ -58,7 +58,7 @@ tusk.render = (entity, node)->
 	# Otherwise we will attempt to bootstrap.
 	else
 		curHTML  = node.toString()
-		prevHTML = root?.outerHTML
+		prevHTML = root.outerHTML
 		# Attempt to see if we can bootstrap off of existing dom.
 		unless curHTML is prevHTML
 			if prevHTML?
@@ -73,7 +73,8 @@ tusk.render = (entity, node)->
 					#{client}
 				""")
 			entity.innerHTML = curHTML
-		node.mount(root)
+
+		node.mount(getRoot(entity))
 	return
 
 ###
