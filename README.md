@@ -121,9 +121,16 @@ let MyDiv = _.memoize(function () {
     );
 });
 
-tusk.render(document.body, myDiv); // render div into body.
-tusk.render(document.body, myDiv); // noop
-tusk.render(document.body, myDiv); // noop
+// creates and renders myDiv.
+tusk.render(document.getElementById("component1"), <MyDiv/>);
+i; // -> 1
+
+// noop.
+tusk.render(document.getElementById("component1"), <MyDiv/>);
+i; // -> 1
+
+// Uses #cloneNode on the previously rendered element. (Much faster than creating it).
+tusk.render(document.getElementById("component2"), <MyDiv/>);
 i; // -> 1
 ```
 
