@@ -1,6 +1,6 @@
-Node                        = require("./virtual/node")
-{ getRoot, getDiff, isDOM } = require("./util")
-{ NODE }                    = require("./constants")
+Node               = require("./virtual/node")
+{ getDiff, isDOM } = require("./util")
+{ NODE }           = require("./constants")
 
 # Bootstrap event listeners if we are in the browser.
 require("./delegator")()
@@ -50,15 +50,15 @@ tusk.render = (entity, node)->
 	unless node.isTusk
 		throw new Error("Tusk: Can only render a virtual node.")
 
-	root = getRoot(entity)
-	prev = root[NODE]
+	root = entity.lastChild
+	prev = root?[NODE]
 
 	# Check if this entity has been rendered into before with this virtual node.
 	if prev then prev.update(node)
 	# Otherwise we will attempt to bootstrap.
 	else
 		curHTML  = node.toString()
-		prevHTML = root.outerHTML
+		prevHTML = entity.innerHTML
 		# Attempt to see if we can bootstrap off of existing dom.
 		unless curHTML is prevHTML
 			if prevHTML?
@@ -73,8 +73,7 @@ tusk.render = (entity, node)->
 					#{client}
 				""")
 			entity.innerHTML = curHTML
-
-		node.mount(getRoot(entity))
+		node.mount(entity.lastChild)
 	return
 
 ###

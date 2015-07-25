@@ -27,17 +27,6 @@ module.exports =
 		typeof window isnt "undefined" and val instanceof window.Node
 
 	###
-	# Returns the root node for an element (this is different for the documentElement).
-	#
-	# @param {HTMLEntity} entity
-	# @return {HTMLEntity}
-	# @api private
-	###
-	getRoot: (entity)->
-		if entity.tagName is "HTML" then entity
-		else entity.firstChild or {}
-
-	###
 	# Returns a chunk surrounding the difference between two strings, useful for debugging.
 	#
 	# @param {String} a

@@ -25,5 +25,5 @@ module.exports = ->
 	return if typeof document is "undefined"
 	# Attach all events at the root level for delegation.
 	for type in EVENTS
-		document.documentElement.addEventListener(type, onEvent, true)
+		document.addEventListener(type, onEvent, true)
 	return
