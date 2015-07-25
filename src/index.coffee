@@ -1,6 +1,6 @@
-Node               = require("./virtual/node")
-{ getDiff, isDOM } = require("./util")
-{ NODE }           = require("./constants")
+Node        = require("./virtual/node")
+{ getDiff } = require("./util")
+{ NODE }    = require("./constants")
 
 # Bootstrap event listeners if we are in the browser.
 require("./delegator")()
@@ -41,22 +41,17 @@ tusk.createElement = tusk
 # @api public
 ###
 tusk.render = (entity, node)->
-	if typeof document is "undefined"
+	if typeof window is "undefined"
 		throw new Error("Tusk: Cannot render on the server (use toString).")
 
-	unless isDOM(entity)
+	unless entity instanceof window.Node
 		throw new Error("Tusk: Container must be a DOM element.")
 
-	unless node.isTusk
+	unless node?.isTusk
 		throw new Error("Tusk: Can only render a virtual node.")
 
-	root = entity.lastChild
-	prev = root?[NODE]
-
 	# Check if this entity has been rendered into before with this virtual node.
-	if prev then prev.update(node)
-	# Otherwise we will attempt to bootstrap.
-	else
+	unless entity.lastChild?[NODE]?.update(node)
 		curHTML  = node.toString()
 		prevHTML = entity.innerHTML
 		# Attempt to see if we can bootstrap off of existing dom.

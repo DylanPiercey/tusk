@@ -17,16 +17,6 @@ module.exports =
 			.replace(/>/g, "&gt;")
 
 	###
-	# Test if a value is a DOM node in the current window.
-	#
-	# @param {*} val
-	# @return {Boolean}
-	# @api private
-	###
-	isDOM: (val)->
-		typeof window isnt "undefined" and val instanceof window.Node
-
-	###
 	# Returns a chunk surrounding the difference between two strings, useful for debugging.
 	#
 	# @param {String} a
