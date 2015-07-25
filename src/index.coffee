@@ -69,7 +69,7 @@ tusk.render = (entity, node)->
 				""")
 			entity.innerHTML = curHTML
 		node.mount(entity.lastChild)
-	return
+	node
 
 ###
 # Utility to attach context to #createElement for sideways data loading.
