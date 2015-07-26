@@ -1,6 +1,6 @@
-Node        = require("./virtual/node")
-{ getDiff } = require("./util")
-{ NODE }    = require("./constants")
+Node                     = require("./virtual/node")
+{ flattenInto, getDiff } = require("./util")
+{ NODE }                 = require("./constants")
 
 # Bootstrap event listeners if we are in the browser.
 require("./delegator")()
@@ -20,10 +20,11 @@ renderContext = undefined
 # @api public
 ###
 tusk = (type, props = {}, children...)->
+	children = flattenInto(children, [])
 	# Create node based on type.
 	switch typeof type
 		when "string" then new Node(type, props, children)
-		when "function" then type(props, [].concat(children...), renderContext)
+		when "function" then type(props, children, renderContext)
 		else throw new Error("Tusk: Invalid virtual node type.")
 
 ###
@@ -69,7 +70,7 @@ tusk.render = (entity, node)->
 				""")
 			entity.innerHTML = curHTML
 		node.mount(entity.lastChild)
-	node
+	return
 
 ###
 # Utility to attach context to #createElement for sideways data loading.

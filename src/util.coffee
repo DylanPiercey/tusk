@@ -17,6 +17,20 @@ module.exports =
 			.replace(/>/g, "&gt;")
 
 	###
+	# Utility that recursively flattens an array.
+	#
+	# @param {Array} arr
+	# @param {Array} acc
+	# @return {Array}
+	# @api private
+	###
+	flattenInto: flattenInto = (arr, acc)->
+		for item in arr
+			if item instanceof Array then flattenInto(item, acc)
+			else acc.push(item)
+		acc
+
+	###
 	# Returns a chunk surrounding the difference between two strings, useful for debugging.
 	#
 	# @param {String} a
