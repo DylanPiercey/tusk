@@ -5,19 +5,24 @@ Text                                               = require("./text")
 ###
 # Utility to recursively flatten a nested array into a keyed node list and cast non-nodes to Text.
 #
-# @param {Array|Virtual} child
+# @param {Array|Virtual} cur
 # @param {String} namespaceURI
+# @param {Object} result
+# @param {Number} acc
 # @return {Object}
 ###
-normalizeChildren = (child, namespaceURI, result = {}, acc = val: -1)->
-	if child instanceof Array
-		normalizeChildren(i, namespaceURI, result, acc) for i in child
+normalizeChildren = (cur, namespaceURI, result, acc)->
+	if cur instanceof Array
+		normalizeChildren(child, namespaceURI, result, acc + i) for child, i in cur
 	else
-		child               = new Text(child) unless child?.isTusk # Cast non-nodes to text.
-		acc.val            += 1
-		child.index         = acc.val # Set chilld position in node list.
-		child.namespaceURI ?= namespaceURI # Inherit parents namespace.
-		result[child.key or acc.val] = child
+		# Cast non-nodes to text.
+		cur = new Text(cur) unless cur?.isTusk
+		# Set chilld position in node list.
+		cur.index = acc
+		# Inherit parents namespace.
+		cur.namespaceURI ?= namespaceURI
+		# Children are indexed by there position, or the provided key.
+		result[cur.key or acc] = cur
 	return result
 
 ###
@@ -49,7 +54,7 @@ Node = (@type, props, children)->
 	@children = (
 		# Check if the node should have any children.
 		if @innerHTML? or @type in SELF_CLOSING then {}
-		else normalizeChildren(children, @namespaceURI)
+		else normalizeChildren(children, @namespaceURI, {}, 0)
 	)
 
 	return

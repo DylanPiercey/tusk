@@ -26,7 +26,6 @@ describe "#{details.name}@#{details.version} - Function", ->
 					}</ChildComponent>
 				</div>
 
-
 			assert.equal(<MyComponent value={ 5 }/>, """
 				<div>
 					<h1>
