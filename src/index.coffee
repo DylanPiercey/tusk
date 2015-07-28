@@ -6,7 +6,7 @@ Node                     = require("./virtual/node")
 require("./delegator")()
 
 # Stores the current context for create element. Can be changed via "withContext"
-renderContext = undefined
+renderContext = null
 
 ###
 # Utility to create virtual elements.
@@ -19,8 +19,12 @@ renderContext = undefined
 # @returns {Node}
 # @api public
 ###
-tusk = (type, props = {}, children...)->
-	children = flattenInto(children, [])
+tusk = (type, props)->
+	len           = Math.max(arguments.length - 2, 0)
+	children      = new Array(len)
+	children[len] = arguments[len + 2] while len--
+	children      = flattenInto(children, [])
+
 	# Create node based on type.
 	switch typeof type
 		when "string" then new Node(type, props, children)

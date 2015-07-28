@@ -33,29 +33,32 @@ normalizeChildren = (cur, namespaceURI, result, acc)->
 # @constructor
 ###
 Node = (@type, props, children)->
-	# Pull out special props.
-	@key       = props.key; delete props.key
-	@innerHTML = props.innerHTML; delete props.innerHTML
-
 	# Set implicit namespace for element.
 	@namespaceURI = (
 		if @type is "svg" then NAMESPACES.SVG
 		else if @type is "math" then NAMESPACES.MATH_ML
 	)
 
-	# Separate attrs from events.
-	@attrs  = {}
-	@events = {}
-	for key, val of props
-		unless key[0...2] is "on" then @attrs[key] = val
-		else @events[key[2..].toLowerCase()] = val
+	# Set default values.
+	@attrs    = {}
+	@events   = {}
+	@children = {}
 
-	# Set child nodes.
-	@children = (
-		# Check if the node should have any children.
-		if @innerHTML? or @type in SELF_CLOSING then {}
-		else normalizeChildren(children, @namespaceURI, {}, 0)
-	)
+	# Check if we should add attrs/events.
+	if props?
+		# Pull out special props.
+		@key       = props.key; delete props.key
+		@innerHTML = props.innerHTML; delete props.innerHTML
+
+		# Separate attrs from events.
+		for key, val of props
+			unless key[0...2] is "on" then @attrs[key] = val
+			else @events[key[2..].toLowerCase()] = val
+
+	# Check if we should append children.
+	unless @innerHTML? or @type in SELF_CLOSING
+		# Set child nodes.
+		normalizeChildren(children, @namespaceURI, @children, 0)
 
 	return
 
