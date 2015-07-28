@@ -41,10 +41,9 @@ Text::create = ->
 # @api private
 ###
 Text::update = (updated)->
-	unless updated instanceof Text then replaceNode(@, updated)
-	else
-		updated._elem = @_elem
-		@_elem.nodeValue = updated.value if updated.value isnt @value
+	if updated.constructor isnt Text then replaceNode(@, updated)
+	else if updated.value isnt @value then @_elem.nodeValue = updated.value
+	updated._elem = @_elem
 	updated
 
 ###

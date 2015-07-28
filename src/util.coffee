@@ -57,7 +57,7 @@ module.exports =
 			else elem
 		)
 		elem[NODE] = node
-		node._elem  = elem
+		node._elem = elem
 		elem
 
 	###
@@ -80,10 +80,6 @@ module.exports =
 	# @api private
 	###
 	setAttrs: (elem, prev, next)->
-		unless next
-			next = prev
-			prev = {}
-
 		# Append new attrs.
 		elem.setAttribute(key, val) for key, val of next when val? and val isnt prev[key]
 		# Remove old attrs.
@@ -100,10 +96,6 @@ module.exports =
 	# @api private
 	###
 	setChildren: (elem, prev, next)->
-		unless next
-			next = prev
-			prev = {}
-
 		# Update new or existing nodes.
 		for key, child of next
 			# Attempt to update an existing node.

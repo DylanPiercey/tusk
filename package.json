@@ -1,6 +1,6 @@
 {
   "name": "tusk",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "A slim virtual dom implementation for immutable structures.",
   "author": "Dylan Piercey <pierceydylan@gmail.com>",
   "main": "lib/index.js",
@@ -36,5 +36,6 @@
     "mocha": "^2.2.5",
     "mocha-jsdom": "^0.3.0",
     "vinyl-source-stream": "^1.1.0"
-  }
+  },
+  "dependencies": {}
 }

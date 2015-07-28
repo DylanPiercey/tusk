@@ -16,7 +16,7 @@ normalizeChildren = (cur, namespaceURI, result, acc)->
 		normalizeChildren(child, namespaceURI, result, acc + i) for child, i in cur
 	else
 		# Cast non-nodes to text.
-		cur = new Text(cur) unless cur?.isTusk
+		cur = new Text(cur) unless cur and cur.isTusk
 		# Set chilld position in node list.
 		cur.index = acc
 		# Inherit parents namespace.
@@ -85,9 +85,9 @@ Node::create = ->
 	# Create a real dom element.
 	@_elem = elem = document.createElementNS(@namespaceURI or NAMESPACES.HTML, @type)
 	elem[NODE] = @
-	setAttrs(elem, @attrs)
+	setAttrs(elem, {}, @attrs)
 	if @innerHTML? then elem.innerHTML = @innerHTML
-	else setChildren(elem, @children)
+	else setChildren(elem, {}, @children)
 	elem
 
 ###
