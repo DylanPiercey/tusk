@@ -5,7 +5,7 @@ Node                     = require("./virtual/node")
 # Bootstrap event listeners if we are in the browser.
 require("./delegator")()
 
-# Stores the current context for create element. Can be changed via "withContext"
+# Stores the current context for create element. Can be changed via "with".
 renderContext = null
 
 ###

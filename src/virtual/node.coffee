@@ -1,6 +1,6 @@
-Text                                               = require("./text")
-{ escapeHTML, replaceNode, setAttrs, setChildren } = require("../util")
-{ SELF_CLOSING, NODE, NAMESPACES }                 = require("../constants")
+Text                                  = require("./text")
+{ escapeHTML, setAttrs, setChildren } = require("../util")
+{ SELF_CLOSING, NODE, NAMESPACES }    = require("../constants")
 
 ###
 # Utility to recursively flatten a nested array into a keyed node list and cast non-nodes to Text.
@@ -85,6 +85,8 @@ Node::mount = (elem)->
 # @api private
 ###
 Node::create = ->
+	# Reuse previously rendered nodes.
+	return @_elem if @_elem
 	# Create a real dom element.
 	@_elem = elem = document.createElementNS(@namespaceURI or NAMESPACES.HTML, @type)
 	elem[NODE] = @
@@ -101,11 +103,14 @@ Node::create = ->
 # @api private
 ###
 Node::update = (updated)->
-	# Update type requires a re-render.
-	if @type isnt updated.type then replaceNode(@, updated)
 	# If we got the same virtual node then we treat it as a no op.
 	# This allows for render memoization.
-	else if this isnt updated
+	return this if this is updated
+
+	if @type isnt updated.type
+		# Update type requires a re-render.
+		@_elem.parentNode.replaceChild(updated.create(), @_elem)
+	else
 		# Give updated the dom.
 		@_elem[NODE]  = updated
 		updated._elem = @_elem
@@ -118,6 +123,7 @@ Node::update = (updated)->
 			# If we are going from innerHTML to nodes then we must clean up.
 			@_elem.removeChild(@_elem.firstChild) while @_elem.firstChild if @innerHTML?
 			setChildren(@_elem, @children, updated.children)
+
 	updated
 
 ###

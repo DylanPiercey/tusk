@@ -1,4 +1,4 @@
-{ escapeHTML, replaceNode } = require("../util")
+{ escapeHTML } = require("../util")
 
 ###
 # Creates a virtual text node that can be later transformed into a real node and updated.
@@ -31,6 +31,8 @@ Text::mount = (elem)->
 # @api private
 ###
 Text::create = ->
+	# Reuse previously rendered nodes.
+	return @_elem if @_elem
 	@_elem = document.createTextNode(@value)
 
 ###
@@ -41,8 +43,17 @@ Text::create = ->
 # @api private
 ###
 Text::update = (updated)->
-	if updated.constructor isnt Text then replaceNode(@, updated)
-	else if updated.value isnt @value then @_elem.nodeValue = updated.value
+	# If we got the same virtual node then we treat it as a no op.
+	# This allows for render memoization.
+	return this if this is updated
+
+	if updated.constructor is Text
+		# If we got a different textnode then we do a value update.
+		if @value isnt updated.value
+			@_elem.nodeValue = updated.value
+	else
+		@_elem.parentNode.replaceChild(updated.create(), @_elem)
+
 	updated._elem = @_elem
 	updated
 

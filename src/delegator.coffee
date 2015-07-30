@@ -14,7 +14,7 @@ onEvent = (e)->
 		node            = target[NODE]
 		target          = target.parentNode
 		e.preventDefault() if node?.events[type]?(e) is false
-		break if e.cancelBubble
+		break if e.cancelBubble or not e.bubbles
 	return
 
 ###

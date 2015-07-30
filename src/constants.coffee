@@ -9,9 +9,15 @@ module.exports =
 		"keygen", "link", "meta", "param", "source", "track", "wbr"
 	]
 	EVENTS: [
-		"blur", "change", "click", "contextmenu", "copy", "cut", "dblclick", "drag",
-		"dragend", "dragenter", "dragexit", "dragleave", "dragover", "dragstart", "drop",
-		"focus", "input", "keydown", "keypress", "keyup", "mousedown", "mouseenter",
-		"mouseleave", "mousemove", "mouseout", "mouseover", "mouseup", "paste", "scroll",
-		"submit", "touchcancel", "touchend", "touchmove", "touchstart", "wheel"
+		"animationend", "animationiteration", "animationstart", "beforeunload",
+		"blur", "canplay", "canplaythrough", "change", "click", "contextmenu",
+		"copy", "cut", "dblclick", "DOMContentLoaded", "drag", "dragend",
+		"dragenter", "dragexit", "dragleave", "dragover", "dragstart", "drop",
+		"durationchange", "emptied", "ended", "focus", "fullscreenchange",
+		"input", "keydown", "keypress", "keyup", "load", "mousedown",
+		"mouseenter", "mouseleave", "mousemove", "mouseout", "mouseover",
+		"mouseup", "paste", "pause", "play", "playing", "reset", "scroll",
+		"seeked", "seeking", "select", "submit", "suspend", "timeupdate",
+		"touchcancel", "touchend", "touchmove", "touchstart", "transitionend",
+		"visibilitychange", "volumechange", "waiting", "wheel"
 	]

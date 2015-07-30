@@ -1,5 +1,3 @@
-{ NODE } = require("./constants")
-
 module.exports =
 	###
 	# Escape special characters in the given string of html.
@@ -45,34 +43,6 @@ module.exports =
 		[a[start...Math.min(end, a.length)], b[start...Math.min(end, b.length)]]
 
 	###
-	# Utility to extract out or create an elem from an existing node.
-	#
-	# @param {Virtual} node
-	###
-	createNode: createNode = (node)->
-		elem = node._elem
-		elem = (
-			unless elem then node.create()
-			else if document.documentElement.contains(elem) then elem.cloneNode(true)
-			else elem
-		)
-		elem[NODE] = node
-		node._elem = elem
-		elem
-
-	###
-	# Utility to replace one node with another.
-	#
-	# @param {HTMLEntity} elem
-	# @param {Object} prev
-	# @param {Object} next
-	# @api private
-	###
-	replaceNode: ({ _elem }, next)->
-		_elem.parentNode.replaceChild(createNode(next), _elem)
-		return
-
-	###
 	# Utility that will update or set a given virtual nodes attributes.
 	# @param {HTMLEntity} elem
 	# @param {Object} prev
@@ -104,7 +74,7 @@ module.exports =
 				# Skip re-insert if child hasn't moved.
 				continue if prevChild.index is child.index
 			# Create the node if it is new.
-			else createNode(child)
+			else child.create()
 			# Insert or move the node.
 			elem.insertBefore(child._elem, elem.childNodes[child.index])
 

@@ -47,17 +47,15 @@ function MyCounter (props, children) {
     );
 }
 
-function render () {
+// Initial render
+render();
+
+// We can use the render function to re-render when the state changes.
+struct.on("next-animation-frame", function render () {
     tusk.render(document.body,
         <MyCounter message="Times clicked" cursor={ struct.cursor() }/>
     )
-}
-
-// Initial render
-render()
-
-// We can use the render function to re-render when the state changes.
-struct.on("next-animation-frame", render)
+});
 
 // We can also render into a string (Usually for the server).
 let HTML = String(<MyCounter type="Times clicked" cursor={ struct.cursor() }/>);
