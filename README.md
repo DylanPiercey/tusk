@@ -54,7 +54,7 @@ render();
 struct.on("next-animation-frame", function render () {
     tusk.render(document.body,
         <MyCounter message="Times clicked" cursor={ struct.cursor() }/>
-    )
+    );
 });
 
 // We can also render into a string (Usually for the server).
@@ -76,7 +76,9 @@ tusk.render(document.body, <div>Hello World</div>);
 ```javascript
 // renderer must be a function that returns a virtual node.
 function MyComponent (props, children, context) {
-    <div>External data: { context }</div>
+    return (
+        <div>External data: { context }</div>
+    );
 }
 
 String(tusk.with(1, ()=> <MyComponent/>));
@@ -110,26 +112,24 @@ Tusk will also intelegently cloneNodes if memoized nodes are inserted in multipl
 
 ```javascript
 let _ = require("lodash");
-let i = 0;
 
 let MyDiv = _.memoize(function () {
-    console.log(++i);
     return (
         <div>Hello World</div>
     );
 });
 
 // creates and renders myDiv.
-tusk.render(document.getElementById("component1"), <MyDiv/>);
-i; // -> 1
+tusk.render(document.body, <MyDiv/>);
 
 // noop.
-tusk.render(document.getElementById("component1"), <MyDiv/>);
-i; // -> 1
+tusk.render(document.body, <MyDiv/>);
 
-// Uses #cloneNode on the previously rendered element. (Much faster than creating it).
-tusk.render(document.getElementById("component2"), <MyDiv/>);
-i; // -> 1
+// render something entirely different.
+tusk.render(document.body, <MyOtherDiv/>);
+
+// switch back - reuses existing "MyDiv" dom. (Extremely fast).
+tusk.render(document.body, <MyDiv/>);
 ```
 
 ### Contributions
