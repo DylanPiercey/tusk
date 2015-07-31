@@ -56,11 +56,12 @@ tusk.render = (entity, node)->
 		throw new Error("Tusk: Can only render a virtual node.")
 
 	# Check if this entity has been rendered into before with this virtual node.
-	unless entity.lastChild?[NODE]?.update(node)
+	unless entity[NODE]?.update(node)
+		prevHTML = entity.outerHTML
 		curHTML  = node.toString()
-		prevHTML = entity.innerHTML
 		# Attempt to see if we can bootstrap off of existing dom.
 		unless curHTML is prevHTML
+			entity.outerHTML = curHTML
 			if prevHTML?
 				[server, client] = getDiff(prevHTML, curHTML)
 				console.warn("""
@@ -72,8 +73,7 @@ tusk.render = (entity, node)->
 					Client:
 					#{client}
 				""")
-			entity.innerHTML = curHTML
-		node.mount(entity.lastChild)
+		node.mount(entity)
 	return
 
 ###
@@ -87,7 +87,7 @@ tusk.render = (entity, node)->
 tusk.with = (context, renderer)->
 	renderContext = context
 	unless (node = renderer?())?.isTusk
-		throw new Error("Tusk: withContext requires a render function that returns a virtual node.")
+		throw new Error("Tusk: with requires a render function that returns a virtual node.")
 	renderContext = undefined
 	node
 

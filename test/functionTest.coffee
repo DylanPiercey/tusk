@@ -62,7 +62,7 @@ describe "#{details.name}@#{details.version} - Function", ->
 			document.body.innerHTML = <MyCounter message="Times clicked" cursor={ struct.cursor() }/>
 
 			render = ->
-				tusk.render(document.body,
+				tusk.render(document.body.firstChild,
 					<MyCounter message="Times clicked" cursor={ struct.cursor() }/>
 				)
 

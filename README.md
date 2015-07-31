@@ -14,6 +14,8 @@ Currently this is experimental and should not be used in production.
 * Designed for immutable data.
 * No extra "data-react-id" attributes.
 * No random span's inserted into DOM.
+* Supports full page rendering.
+* Renders onto an element, instead of into.
 * Supports JSX.
 
 # Installation
@@ -41,9 +43,11 @@ function MyCounter (props, children) {
 
     // Render the component.
     return (
-        <button onClick={ handleClick }>
-            { message } : { cursor.get('i') }
-        </button>
+        <body>
+            <button onClick={ handleClick }>
+                { message } : { cursor.get('i') }
+            </button>
+        </body>
     );
 }
 
@@ -59,14 +63,18 @@ struct.on("next-animation-frame", function render () {
 
 // We can also render into a string (Usually for the server).
 let HTML = String(<MyCounter type="Times clicked" cursor={ struct.cursor() }/>);
-// -> "<button>Times clicked : 0</button>"
+// -> "<body><button>Times clicked : 0</button></body>"
 ```
 
 # API
 + **render(HTMLEntity, node)** : Bootstrap or update a virtual `node` inside of an `HTML Entity`.
 
 ```javascript
-tusk.render(document.body, <div>Hello World</div>);
+tusk.render(document.body,
+    <body>
+        <div>Hello World</div>
+    </body>
+);
 // -> document.body.innerHTML === "<div>Hello World</div>"
 ```
 
@@ -120,16 +128,16 @@ let MyDiv = _.memoize(function () {
 });
 
 // creates and renders myDiv.
-tusk.render(document.body, <MyDiv/>);
+tusk.render(HTMLEntity, <MyDiv/>);
 
 // noop.
-tusk.render(document.body, <MyDiv/>);
+tusk.render(HTMLEntity, <MyDiv/>);
 
 // render something entirely different.
-tusk.render(document.body, <MyOtherDiv/>);
+tusk.render(HTMLEntity, <MyOtherDiv/>);
 
 // switch back - reuses existing "MyDiv" dom. (Extremely fast).
-tusk.render(document.body, <MyDiv/>);
+tusk.render(HTMLEntity, <MyDiv/>);
 ```
 
 ### Contributions
