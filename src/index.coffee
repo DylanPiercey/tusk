@@ -9,15 +9,21 @@ require("./delegator")()
 renderContext = null
 
 ###
+# @namespace tusk
+# @description
 # Utility to create virtual elements.
-# If the given type is a string then the resulting virtual node will be an html element with a tagname of that string.
+# If the given type is a string then the resulting virtual node will be created with a tagname of that string.
 # Otherwise if the type is a function it will be invoked, and the returned nodes used.
 #
-# @param {String|Function} type
-# @param {Object} props
-# @param {Array} children
-# @returns {Node}
-# @api public
+# @example
+# // Create a virtual element.
+# tusk("div", { id: "example" }, ...); // -> Node
+#
+# @param {String|Function} type - A nodeName or a function that returns a Node.
+# @param {Object} props - The events and attributes for the resulting element.
+# @param {Array} children - The children for the resulting element.
+# @throws {TypeError} type must be a function or a string.
+# @returns {(Node|*)}
 ###
 tusk = (type, props)->
 	len           = Math.max(arguments.length - 2, 0)
@@ -29,21 +35,29 @@ tusk = (type, props)->
 	switch typeof type
 		when "string" then new Node(type, props, children)
 		when "function" then type(props, children, renderContext)
-		else throw new Error("Tusk: Invalid virtual node type.")
+		else throw new TypeError("Tusk: Invalid virtual node type.")
 
 ###
-# Alias for calling tusk for some older JSX compilers.
-#
-# @api public
+# @static
+# @memberOf tusk
+# @alias tusk
 ###
 tusk.createElement = tusk
 
 ###
-# Render a virtual node into the document.
+# @static
+# @memberOf tusk
+# @description
+# Render a virtual node onto an html entity.
+# This will automatically re-use existing dom and initialize a tusk app.
 #
-# @param {HTMLEntity} entity
-# @param {Virtual} node
-# @api public
+# @example
+# // Using jsx.
+# tusk.render(document.body, <body>Hello World!</body>);
+# document.body.innerHTML; //-> "Hello World"
+#
+# @param {HTMLEntity} entity - The dom node to render the virtual node onto.
+# @param {Node} node - The virtual node to render.
 ###
 tusk.render = (entity, node)->
 	if typeof window is "undefined"
@@ -77,17 +91,40 @@ tusk.render = (entity, node)->
 	return
 
 ###
+# @static
+# @memberOf tusk
+# @description
 # Utility to attach context to #createElement for sideways data loading.
 # The provided renderer will be immediately invoked.
 #
-# @params {*} context
-# @params {Function} renderer
-# @returns {Function}
+# @example
+# let MyComponent = function (props, children, context) {
+# 	return (
+# 		<body>
+# 			Counter: { context.counter }
+# 		</body>
+# 	);
+# };
+#
+# tusk.render(document.body,
+# 	tusk.with({ counter: 1 }, function () {
+# 		return (
+# 			<MyCounter/>
+# 		);
+# 	});
+# );
+#
+# document.body.innerHTML; //-> "Counter: 1"
+#
+# @param {*} context - A value that any custom render functions will be invoked with.
+# @param {Function} renderer - Any nodes rendered within the function will be called with the context.
+# @throws {TypeError} The result of renderer must be a Node.
+# @returns {(Node|Text)}
 ###
 tusk.with = (context, renderer)->
 	renderContext = context
 	unless (node = renderer?())?.isTusk
-		throw new Error("Tusk: with requires a render function that returns a virtual node.")
+		throw new TypeError("Tusk: with requires a render function that returns a virtual node.")
 	renderContext = undefined
 	node
 

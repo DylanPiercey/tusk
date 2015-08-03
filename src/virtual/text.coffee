@@ -1,34 +1,48 @@
 { escapeHTML } = require("../util")
 
 ###
+# @class Text
+# @description
 # Creates a virtual text node that can be later transformed into a real node and updated.
-# @param {String} value
-# @constructor
+#
+# @param {String} value - the nodeValue for the text node.
+# @private
 ###
 Text = (value = " ")->
 	@value = String(value)
 	return
 
+###
+# @memberOf Text
+# @description
 # Mark instances as a tusk nodes.
+#
+# @constant
+# @private
+###
 Text::isTusk = true
 
 ###
-# Bootstraps event listeners and children from a virtual element.
+# @memberOf Text
+# @description
+# Ensures that the provided element's node value matches the virtual value.
 #
-# @param {HTMLElement} elem
-# @api private
+# @param {HTMLEntity} elem
+# @private
 ###
 Text::mount = (elem)->
 	@_elem = { nodeValue } = elem
 	# Use Text.splitText(index) to split up text-nodes from server.
 	elem.splitText(nodeValue.indexOf(@value) + @value.length) if @value isnt nodeValue
-	elem
+	return
 
 ###
-# Creates a real node out of the virtual node and returns it.
+# @memberOf Text
+# @description
+# Creates a real text node out of the virtual text node and returns it.
 #
-# @return HTMLElement
-# @api private
+# @returns {HTMLEntity}
+# @private
 ###
 Text::create = ->
 	# Reuse previously rendered nodes.
@@ -36,11 +50,13 @@ Text::create = ->
 	@_elem = document.createTextNode(@value)
 
 ###
+# @memberOf Text
+# @description
 # Given a different virtual node it will compare the nodes an update the real node accordingly.
 #
-# @param {Virtual} updated
-# @returns {Virtual}
-# @api private
+# @param {(Node|Text)} updated
+# @returns {(Node|Text)}
+# @private
 ###
 Text::update = (updated)->
 	# If we got the same virtual node then we treat it as a no op.
@@ -58,18 +74,23 @@ Text::update = (updated)->
 	updated
 
 ###
-# Removes the current node from it's parent.
+# @memberOf Text
+# @description
+# Removes the current text node from it's parent.
+#
+# @private
 ###
 Text::remove = ->
 	@_elem.parentNode.removeChild(@_elem)
 
 ###
-# Return text nodes value.
+# @memberOf Text
+# @description
+# Generate a valid escaped html string for the virtual text node.
 #
-# @return {String}
-# @api public
+# @returns {String}
 ###
 Text::toString = ->
 	escapeHTML(@value)
 
-module.exports  = Text
+module.exports = Text

@@ -1,10 +1,11 @@
 module.exports =
 	###
+	# @description
 	# Escape special characters in the given string of html.
 	#
-	# @param {String} html
-	# @return {String}
-	# @api private
+	# @param {String} html - the html to escape.
+	# @returns {String}
+	# @private
 	###
 	escapeHTML: (html)->
 		String(html)
@@ -17,10 +18,10 @@ module.exports =
 	###
 	# Utility that recursively flattens an array.
 	#
-	# @param {Array} arr
-	# @param {Array} acc
-	# @return {Array}
-	# @api private
+	# @param {Array} arr - The array to flatten.
+	# @param {Array} acc - The resulting array.
+	# @returns {Array}
+	# @private
 	###
 	flattenInto: flattenInto = (arr, acc)->
 		for item in arr
@@ -29,12 +30,13 @@ module.exports =
 		acc
 
 	###
+	# @description
 	# Returns a chunk surrounding the difference between two strings, useful for debugging.
 	#
 	# @param {String} a
 	# @param {String} b
-	# @return {Array<String>}
-	# @api private
+	# @returns {Array<String>}
+	# @private
 	###
 	getDiff: (a, b)->
 		break for char, i in a when char isnt b[i]
@@ -43,11 +45,13 @@ module.exports =
 		[a[start...Math.min(end, a.length)], b[start...Math.min(end, b.length)]]
 
 	###
+	# @description
 	# Utility that will update or set a given virtual nodes attributes.
-	# @param {HTMLEntity} elem
-	# @param {Object} prev
-	# @param {Object} next
-	# @api private
+	#
+	# @param {HTMLEntity} elem - The entity to update.
+	# @param {Object} prev - The previous attributes.
+	# @param {Object} next - The updated attributes.
+	# @private
 	###
 	setAttrs: (elem, prev, next)->
 		# Append new attrs.
@@ -57,13 +61,13 @@ module.exports =
 		return
 
 	###
+	# @description
 	# Utility that will update or set a given virtual nodes children.
 	#
-	# @param {HTMLEntity} elem
-	# @param {Object} prev
-	# @param {Object} next
-	# @return {Node}
-	# @api private
+	# @param {HTMLEntity} elem - The entity to update.
+	# @param {Object} prev - The previous children.
+	# @param {Object} next - The updated children.
+	# @private
 	###
 	setChildren: (elem, prev, next)->
 		# Update new or existing nodes.

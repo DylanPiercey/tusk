@@ -132,6 +132,7 @@ describe "#{details.name}@#{details.version} - Node", ->
 		it "should listen for events", (done)->
 			# Reset events
 			require("../src/delegator")()
-			elem = <div onClick={ -> done() }/>.mount(document.createElement("div"))
+			elem = document.createElement("div")
+			<div onClick={ -> done() }/>.mount(elem)
 			document.body.appendChild(elem)
 			elem.click()

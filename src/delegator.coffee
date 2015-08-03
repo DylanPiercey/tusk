@@ -1,9 +1,13 @@
 { NODE, EVENTS } = require("./constants")
 
 ###
+# @description
 # Handle and delegate global events.
+#
+# @param {Event} e - The DOM event being handled.
+# @private
 ###
-onEvent = (e)->
+handleEvent = (e)->
 	{ target, type } = e
 	# stopPropagation() fails to set cancelBubble to true in Webkit
 	# @see http://code.google.com/p/chromium/issues/detail?id=162270
@@ -18,12 +22,15 @@ onEvent = (e)->
 	return
 
 ###
+# @description
 # Attach all event listeners to the dom for delegation.
+#
+# @private
 ###
 module.exports = ->
 	# Skip this if we are not in the browser.
 	return if typeof document is "undefined"
 	# Attach all events at the root level for delegation.
 	for type in EVENTS
-		document.addEventListener(type, onEvent, true)
+		document.addEventListener(type, handleEvent, true)
 	return

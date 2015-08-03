@@ -3,13 +3,15 @@ Text                                  = require("./text")
 { SELF_CLOSING, NODE, NAMESPACES }    = require("../constants")
 
 ###
+# @description
 # Utility to recursively flatten a nested array into a keyed node list and cast non-nodes to Text.
 #
-# @param {Array|Virtual} cur
+# @param {(Array|Node)} cur
 # @param {String} namespaceURI
 # @param {Object} result
 # @param {Number} acc
-# @return {Object}
+# @returns {Object}
+# @private
 ###
 normalizeChildren = (cur, namespaceURI, result, acc)->
 	if cur instanceof Array
@@ -26,11 +28,13 @@ normalizeChildren = (cur, namespaceURI, result, acc)->
 	return result
 
 ###
+# @class Node
+# @description
 # Creates a virtual dom node that can be later transformed into a real node and updated.
-# @param {String} type
-# @param {Object} props
-# @param {Array} children
-# @constructor
+# @param {String} type - The tagname of the element.
+# @param {Object} props - An object containing events and attributes.
+# @param {Array} children - The child nodeList for the element.
+# @private
 ###
 Node = (@type, props, children)->
 	# Set implicit namespace for element.
@@ -61,28 +65,38 @@ Node = (@type, props, children)->
 		normalizeChildren(children, @namespaceURI, @children, 0)
 
 	return
-
+###
+# @memberOf Node
+# @description
 # Mark instances as a tusk nodes.
+#
+# @constant
+# @private
+###
 Node::isTusk = true
 
 ###
-# Bootstraps event listeners and children from a virtual element.
+# @memberOf Node
+# @description
+# Bootstraps event listeners and children from a virtual node.
 #
-# @param {HTMLElement} elem
-# @api private
+# @param {HTMLEntity} elem
+# @private
 ###
 Node::mount = (elem)->
 	@_elem = { childNodes } = elem
 	elem[NODE] = @
 	# Boostrap children.
 	child.mount(childNodes[child.index or key]) for key, child of @children unless @innerHTML?
-	elem
+	return
 
 ###
+# @memberOf Node
+# @description
 # Creates a real node out of the virtual node and returns it.
 #
-# @return {HTMLElement}
-# @api private
+# @returns {HTMLEntity}
+# @private
 ###
 Node::create = ->
 	# Reuse previously rendered nodes.
@@ -96,11 +110,13 @@ Node::create = ->
 	elem
 
 ###
+# @memberOf Node
+# @description
 # Given a different virtual node it will compare the nodes an update the real node accordingly.
 #
-# @param {Virtual} updated
-# @return {Virtual}
-# @api private
+# @param {Node} updated
+# @returns {Node}
+# @private
 ###
 Node::update = (updated)->
 	# If we got the same virtual node then we treat it as a no op.
@@ -127,18 +143,21 @@ Node::update = (updated)->
 	updated
 
 ###
+# @memberOf Node
+# @description
 # Removes the current node from it's parent.
 #
-# @api private
+# @private
 ###
 Node::remove = ->
 	@_elem.parentNode.removeChild(@_elem)
 
 ###
-# Override node's toString to generate valid html.
+# @memberOf Node
+# @description
+# Generate valid html for the virtual node.
 #
-# @return {String}
-# @api public
+# @returns {String}
 ###
 Node::toString = ->
 	attrs = children = ""
