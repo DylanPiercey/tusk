@@ -1,6 +1,6 @@
 Node                     = require("./virtual/node")
-{ flattenInto, getDiff } = require("./util")
 { NODE }                 = require("./constants")
+{ flattenInto, getDiff } = require("./util")
 
 # Bootstrap event listeners if we are in the browser.
 require("./delegator")()
@@ -19,7 +19,7 @@ renderContext = null
 # // Create a virtual element.
 # tusk("div", { id: "example" }, ...); // -> Node
 #
-# @param {String|Function} type - A nodeName or a function that returns a Node.
+# @param {(String|Function)} type - A nodeName or a function that returns a Node.
 # @param {Object} props - The events and attributes for the resulting element.
 # @param {Array} children - The children for the resulting element.
 # @throws {TypeError} type must be a function or a string.

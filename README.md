@@ -9,14 +9,25 @@ A lightweight viritual-dom with a friendly interface.
 Many virtual-dom implementations are bulky and are not optimized for immutable data or server side rendering.
 Currently this is experimental and should not be used in production.
 
-* Lightweight.
+### Features
+* ~3kb min/gzip.
 * Minimal API.
 * Designed for immutable data.
 * No extra "data-react-id" attributes.
 * No random span's inserted into DOM.
-* Supports full page rendering.
+* Allows any custom attribute (react only allows data-).
 * Renders onto an element, instead of into.
-* Supports JSX.
+* Render nested arrays.
+
+### Supports
+* Event delegation.
+* Full page rendering.
+* Server side rendering (With ability to bootstrap a page).
+* SVG and MathML namespaces in a clean way.
+* Keyed nodes - same as react although optional.
+* Contexts - same as react (but easier to use).
+* Node constants. (Good for memoization).
+* JSX (Or non JSX, just call tusk directly).
 
 # Installation
 

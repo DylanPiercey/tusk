@@ -1,6 +1,6 @@
-Text                                  = require("./text")
-{ escapeHTML, setAttrs, setChildren } = require("../util")
 { SELF_CLOSING, NODE, NAMESPACES }    = require("../constants")
+{ escapeHTML, setAttrs, setChildren } = require("../util")
+Text                                  = require("./text")
 
 ###
 # @description

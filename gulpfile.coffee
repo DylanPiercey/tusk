@@ -22,7 +22,7 @@ gulp.task("build", ->
 			console.log(err.stack)
 			this.emit("end")
 		))
-		.pipe(header("/** #{details.name} v#{details.version} https://www.npmjs.com/package/#{details.name} */\n"))
+		.pipe(header("/** #{details.name} v#{details.version} https://www.npmjs.com/package/#{details.name} */\n\"use strict\";\n"))
 		.pipe(gulp.dest(lib))
 )
 
@@ -46,7 +46,6 @@ gulp.task "build-browser", ->
 			console.log(err.stack)
 			@emit("end")
 		)
-
 
 ###
 Run tests.

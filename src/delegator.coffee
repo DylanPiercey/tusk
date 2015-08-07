@@ -31,6 +31,5 @@ module.exports = ->
 	# Skip this if we are not in the browser.
 	return if typeof document is "undefined"
 	# Attach all events at the root level for delegation.
-	for type in EVENTS
-		document.addEventListener(type, handleEvent, true)
+	document.addEventListener(type, handleEvent, true) for type in EVENTS
 	return
