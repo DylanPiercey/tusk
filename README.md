@@ -129,7 +129,6 @@ In React and many other virtual doms "shouldUpdate" is a common theme for perfor
 Tusk **does not** feature shouldUpdate and opts for a more performant, simpler, and well known approach: **memoization**.
 
 Basically Tusk will never re-render when given the same node twice, meaning the following will only render once.
-Tusk will also intelegently cloneNodes if memoized nodes are inserted in multiple places throughout the document.
 
 ```javascript
 let _ = require("lodash");
