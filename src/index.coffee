@@ -2,9 +2,6 @@ Node                     = require("./virtual/node")
 { NODE }                 = require("./constants")
 { flattenInto, getDiff } = require("./util")
 
-# Bootstrap event listeners if we are in the browser.
-require("./delegator")()
-
 # Stores the current context for create element. Can be changed via "with".
 renderContext = null
 
@@ -92,7 +89,11 @@ tusk.render = (entity, node)->
 					Client:
 					#{client}
 				""")
+		# Mount node attaches all events.
 		node.mount(entity)
+		# Bootstrap event listeners if we are in the browser.
+		require("./delegator")()
+
 	return
 
 ###
