@@ -76,8 +76,9 @@ tusk.render = (entity, node)->
 		prevHTML = entity.outerHTML
 		curHTML  = node.toString()
 		# Attempt to see if we can bootstrap off of existing dom.
-		unless curHTML is prevHTML
-			entity.outerHTML = curHTML
+		if curHTML is prevHTML then node.mount(entity)
+		else
+			entity.parentNode.replaceChild(node.create(), entity)
 			if prevHTML?
 				[server, client] = getDiff(prevHTML, curHTML)
 				console.warn("""
@@ -89,8 +90,7 @@ tusk.render = (entity, node)->
 					Client:
 					#{client}
 				""")
-		# Mount node attaches all events.
-		node.mount(entity)
+
 		# Bootstrap event listeners if we are in the browser.
 		require("./delegator")()
 
