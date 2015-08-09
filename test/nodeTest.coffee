@@ -130,9 +130,19 @@ describe "#{details.name}@#{details.version} - Node", ->
 			assert(div.childNodes[0] is root)
 
 		it "should listen for events", (done)->
-			# Reset events
-			require("../src/delegator")()
 			elem = document.createElement("div")
-			<div onClick={ -> done() }/>.mount(elem)
 			document.body.appendChild(elem)
+			<div onClick={ -> done() }/>.mount(elem)
 			elem.click()
+
+		it "should have a mount event", (done)->
+			elem = document.createElement("div")
+			document.body.appendChild(elem)
+			<div onMount={ -> done() }/>.mount(elem)
+
+		it "should have a dismount event", (done)->
+			elem = document.createElement("div")
+			document.body.appendChild(elem)
+			node = <div onDismount={ -> done() }/>
+			node.mount(elem)
+			node.update(<span/>)

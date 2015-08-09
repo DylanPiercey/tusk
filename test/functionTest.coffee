@@ -59,6 +59,9 @@ describe "#{details.name}@#{details.version} - Function", ->
 					{ message } : { cursor.get('i') }
 				</button>
 
+			MyCounter.onMount = (e)->
+
+
 			document.body.innerHTML = <MyCounter message="Times clicked" cursor={ struct.cursor() }/>
 
 			render = ->
@@ -71,3 +74,16 @@ describe "#{details.name}@#{details.version} - Function", ->
 			document.body.firstChild.click() for i in [0...5]
 
 			assert.equal(document.body.innerHTML, "<button>Times clicked : 5</button>")
+
+		it "should trigger mount and dismount with owner change", ->
+			ComponentA = ->
+				<div onDismount={ -> done() }/>
+
+			ComponentB = ->
+				<div/>
+
+			elem = document.createElement("div")
+			document.body.appendChild(elem)
+
+			tusk.render(elem, <ComponentA/>)
+			tusk.render(elem, <ComponentB/>)

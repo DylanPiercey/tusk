@@ -1,6 +1,6 @@
-{ SELF_CLOSING, NODE, NAMESPACES }    = require("../constants")
-{ escapeHTML, setAttrs, setChildren } = require("../util")
-Text                                  = require("./text")
+{ SELF_CLOSING, NODE, NAMESPACES }              = require("../constants")
+{ escapeHTML, dispatch, setAttrs, setChildren } = require("../util")
+Text                                            = require("./text")
 
 ###
 # @description
@@ -88,6 +88,7 @@ Node::mount = (elem)->
 	elem[NODE] = @
 	# Boostrap children.
 	child.mount(childNodes[child.index or key]) for key, child of @children unless @innerHTML?
+	dispatch("mount", elem)
 	return
 
 ###
@@ -107,6 +108,7 @@ Node::create = ->
 	setAttrs(elem, {}, @attrs)
 	if @innerHTML? then elem.innerHTML = @innerHTML
 	else setChildren(elem, {}, @children)
+	dispatch("mount", elem)
 	elem
 
 ###
@@ -125,8 +127,12 @@ Node::update = (updated)->
 
 	if @type isnt updated.type
 		# Update type requires a re-render.
-		@_elem.parentNode.replaceChild(updated.create(), @_elem)
+		@_elem.parentNode.insertBefore(updated.create(), @_elem)
+		@remove()
 	else
+		newOwner = @owner isnt updated.owner
+		dispatch("dismount", @_elem) if newOwner
+
 		# Give updated the dom.
 		@_elem[NODE]  = updated
 		updated._elem = @_elem
@@ -140,6 +146,8 @@ Node::update = (updated)->
 			@_elem.removeChild(@_elem.firstChild) while @_elem.firstChild if @innerHTML?
 			setChildren(@_elem, @children, updated.children)
 
+		dispatch("mount", @_elem) if newOwner
+
 	updated
 
 ###
@@ -150,6 +158,7 @@ Node::update = (updated)->
 # @private
 ###
 Node::remove = ->
+	dispatch("dismount", @_elem)
 	@_elem.parentNode.removeChild(@_elem)
 
 ###

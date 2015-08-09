@@ -33,9 +33,14 @@ tusk = (type, props)->
 
 	# Create node based on type.
 	switch typeof type
-		when "string" then new Node(type, props, children)
-		when "function" then type(props, children, renderContext)
-		else throw new TypeError("Tusk: Invalid virtual node type.")
+		when "string"
+			new Node(type, props, children)
+		when "function"
+			node = type(props, children, renderContext)
+			node.owner = type if node instanceof Node
+			node
+		else
+			throw new TypeError("Tusk: Invalid virtual node type.")
 
 ###
 # @static

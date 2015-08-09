@@ -51,11 +51,13 @@ function MyCounter (props, children) {
 
     // Define handlers.
     let handleClick = (e)=> cursor.update((state)=> state.set("i", state.get("i") + 1));
+    let setup = (e)=> ...;
+    let teardown = (e)=> ...;
 
     // Render the component.
     return (
         <body>
-            <button onClick={ handleClick }>
+            <button onClick={ handleClick } onMount={ setup } onDismount={ teardown }>
                 { message } : { cursor.get('i') }
             </button>
         </body>

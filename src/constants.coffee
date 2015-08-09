@@ -35,10 +35,10 @@ module.exports =
 	EVENTS: [
 		"animationend", "animationiteration", "animationstart", "beforeunload",
 		"blur", "canplay", "canplaythrough", "change", "click", "contextmenu",
-		"copy", "cut", "dblclick", "DOMContentLoaded", "drag", "dragend",
+		"copy", "cut", "dblclick", "dismount", "DOMContentLoaded", "drag", "dragend",
 		"dragenter", "dragexit", "dragleave", "dragover", "dragstart", "drop",
 		"durationchange", "emptied", "ended", "focus", "fullscreenchange",
-		"input", "keydown", "keypress", "keyup", "load", "mousedown",
+		"input", "keydown", "keypress", "keyup", "load", "mount", "mousedown",
 		"mouseenter", "mouseleave", "mousemove", "mouseout", "mouseover",
 		"mouseup", "paste", "pause", "play", "playing", "reset", "scroll",
 		"seeked", "seeking", "select", "submit", "suspend", "timeupdate",
