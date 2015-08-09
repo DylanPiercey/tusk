@@ -16,6 +16,13 @@ handleEvent = (e)->
 	# @see http://code.google.com/p/chromium/issues/detail?id=162270
 	e.stopPropagation = -> e.cancelBubble = true
 
+	# This allows us to ignore the default browser handling of current target.
+	# The browser has no idea which virtual elements are being delegated too.
+	Object.defineProperty(e, "currentTarget"
+		value:    target
+		writable: true
+	)
+
 	# Dispatch events to registered handlers.
 	while target
 		e.currentTarget = target
