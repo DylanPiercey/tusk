@@ -160,6 +160,7 @@ Node::update = (updated)->
 ###
 Node::remove = ->
 	dispatch("dismount", @_elem)
+	child.remove() for key, child of @children
 	@_elem.parentNode.removeChild(@_elem)
 
 ###
