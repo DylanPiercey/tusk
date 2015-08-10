@@ -9,7 +9,7 @@ describe "#{details.name}@#{details.version} - Function", ->
 	require("mocha-jsdom")() if typeof document is "undefined"
 
 	# Re Initialize events before each test (mocha-jsdom resets them).
-	beforeEach -> delegate()
+	beforeEach -> delegate.init()
 
 	describe "Virtual component", ->
 		it "should be able to create", ->
@@ -75,7 +75,7 @@ describe "#{details.name}@#{details.version} - Function", ->
 
 			assert.equal(document.body.innerHTML, "<button>Times clicked : 5</button>")
 
-		it "should trigger mount and dismount with owner change", ->
+		it "should trigger mount and dismount with owner change", (done)->
 			ComponentA = ->
 				<div onDismount={ -> done() }/>
 

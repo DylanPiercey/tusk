@@ -51,12 +51,11 @@ module.exports =
 	# @param {HTMLEntity} elem
 	# @param {Boolean} bubble
 	###
-	dispatch: do (cache = {})-> (name, elem, bubble = false)->
-		elem.dispatchEvent(cache[name] ?= (
-			event = document.createEvent("Event")
-			event.initEvent(name, bubble, false)
-			event
-		))
+	dispatch: (name, elem, bubbles = false)->
+		event = document.createEvent("Event")
+		event.initEvent(name, bubbles, false)
+		elem.dispatchEvent(event)
+		return
 
 	###
 	# @description

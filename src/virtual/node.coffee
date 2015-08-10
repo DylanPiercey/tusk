@@ -1,6 +1,7 @@
-{ SELF_CLOSING, NODE, NAMESPACES }              = require("../constants")
-{ escapeHTML, dispatch, setAttrs, setChildren } = require("../util")
-Text                                            = require("./text")
+{ SELF_CLOSING, NODE, NAMESPACES }    = require("../constants")
+{ escapeHTML, setAttrs, setChildren } = require("../util")
+{ dispatch }                          = require("../delegator")
+Text                                  = require("./text")
 
 ###
 # @description

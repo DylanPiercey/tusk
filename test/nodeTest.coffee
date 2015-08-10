@@ -9,7 +9,7 @@ describe "#{details.name}@#{details.version} - Node", ->
 	require("mocha-jsdom")() if typeof document is "undefined"
 
 	# Re Initialize events before each test (mocha-jsdom resets them).
-	beforeEach -> delegate()
+	beforeEach -> delegate.init()
 
 	describe "Virtual node", ->
 		it "should be able to create", ->

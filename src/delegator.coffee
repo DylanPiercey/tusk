@@ -18,8 +18,8 @@ handleEvent = (e)->
 
 	# This allows us to ignore the default browser handling of current target.
 	# The browser has no idea which virtual elements are being delegated too.
-	Object.defineProperty(e, "currentTarget"
-		value:    target
+	Object.defineProperty(e, "currentTarget",
+		value:    if e.bubbles then target else undefined
 		writable: true
 	)
 
@@ -28,19 +28,37 @@ handleEvent = (e)->
 		e.currentTarget = target
 		node            = target[NODE]
 		target          = target.parentNode
-		e.preventDefault() if node?.events[type]?(e) is false
+		node?.events[type]?(e)
 		break if e.cancelBubble or not e.bubbles
 	return
 
-###
-# @description
-# Attach all event listeners to the dom for delegation.
-#
-# @private
-###
-module.exports = ->
-	return if document.__tusk
-	# Attach all events at the root level for delegation.
-	document.addEventListener(type, handleEvent, true) for type in EVENTS
-	document.__tusk = true
-	return
+module.exports =
+	###
+	# Utility to create, cache and dispatch an event on a given element.
+	#
+	# @param {String} name
+	# @param {HTMLEntity} elem
+	# @param {Boolean} bubble
+	###
+	dispatch: (name, elem, bubbles = false)->
+		e = document.createEvent("Event")
+		e.initEvent(name, bubbles, false)
+		Object.defineProperties(e,
+			target: value: elem
+			srcElement: value: elem
+		)
+		handleEvent(e)
+		return
+
+	###
+	# @description
+	# Attach all event listeners to the dom for delegation.
+	#
+	# @private
+	###
+	init: ->
+		return if document.__tusk
+		# Attach all events at the root level for delegation.
+		document.addEventListener(type, handleEvent, true) for type in EVENTS
+		document.__tusk = true
+		return
