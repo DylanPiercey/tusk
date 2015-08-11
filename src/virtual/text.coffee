@@ -81,7 +81,7 @@ Text::update = (updated)->
 # @private
 ###
 Text::remove = ->
-	@_elem.parentNode.removeChild(@_elem)
+	@_elem.parentNode.removeChild(@_elem) if @_elem.parentNode
 
 ###
 # @memberOf Text
