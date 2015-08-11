@@ -101,14 +101,19 @@ Node::mount = (elem)->
 # @private
 ###
 Node::create = ->
-	# Reuse previously rendered nodes.
-	return @_elem if @_elem
-	# Create a real dom element.
-	@_elem = elem = document.createElementNS(@namespaceURI or NAMESPACES.HTML, @type)
+	# Create a real dom element or reuse existing.
+	elem       = @_elem ?= document.createElementNS(@namespaceURI or NAMESPACES.HTML, @type)
+	prev       = elem[NODE]
 	elem[NODE] = @
-	setAttrs(elem, {}, @attrs)
+
+	# This element could have be reused at somepoint so we make sure
+	# that we check its children/attrs.
+	if prev then { attrs, children } = prev
+	else attrs = children = {}
+
+	setAttrs(elem, attrs, @attrs)
 	if @innerHTML? then elem.innerHTML = @innerHTML
-	else setChildren(elem, {}, @children)
+	else setChildren(elem, children, @children)
 	dispatch("mount", elem)
 	elem
 

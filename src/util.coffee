@@ -45,19 +45,6 @@ module.exports =
 		[a[start...Math.min(end, a.length)], b[start...Math.min(end, b.length)]]
 
 	###
-	# Utility to create, cache and dispatch an event on a given element.
-	#
-	# @param {String} name
-	# @param {HTMLEntity} elem
-	# @param {Boolean} bubble
-	###
-	dispatch: (name, elem, bubbles = false)->
-		event = document.createEvent("Event")
-		event.initEvent(name, bubbles, false)
-		elem.dispatchEvent(event)
-		return
-
-	###
 	# @description
 	# Utility that will update or set a given virtual nodes attributes.
 	#
@@ -67,6 +54,7 @@ module.exports =
 	# @private
 	###
 	setAttrs: (elem, prev, next)->
+		return if prev is next
 		# Append new attrs.
 		elem.setAttribute(key, val) for key, val of next when val? and val isnt prev[key]
 		# Remove old attrs.
@@ -83,6 +71,7 @@ module.exports =
 	# @private
 	###
 	setChildren: (elem, prev, next)->
+		return if prev is next
 		# Update new or existing nodes.
 		for key, child of next
 			# Attempt to update an existing node.
