@@ -64,13 +64,13 @@ Text::update = (updated)->
 	return this if this is updated
 
 	if updated.constructor is Text
+		updated._elem = @_elem
 		# If we got a different textnode then we do a value update.
 		if @value isnt updated.value
 			@_elem.nodeValue = updated.value
 	else
 		@_elem.parentNode.replaceChild(updated.create(), @_elem)
 
-	updated._elem = @_elem
 	updated
 
 ###
@@ -81,7 +81,7 @@ Text::update = (updated)->
 # @private
 ###
 Text::remove = ->
-	@_elem.parentNode.removeChild(@_elem) if @_elem.parentNode
+	@_elem.parentNode.removeChild(@_elem)
 
 ###
 # @memberOf Text
