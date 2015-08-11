@@ -12,24 +12,25 @@ handleEvent = (e)->
 	# Events are case insensitive in tusk.
 	type = type.toLowerCase()
 
-	# stopPropagation() fails to set cancelBubble to true in Webkit
-	# @see http://code.google.com/p/chromium/issues/detail?id=162270
-	e.stopPropagation = -> e.cancelBubble = true
+	unless e.bubbles then target[NODE]?.events[type]?(e)
+	else
+		# stopPropagation() fails to set cancelBubble to true in Webkit
+		# @see http://code.google.com/p/chromium/issues/detail?id=162270
+		e.stopPropagation = -> e.cancelBubble = true
+		# This allows us to ignore the default browser handling of current target.
+		# The browser has no idea which virtual elements are being delegated too.
+		Object.defineProperty(e, "currentTarget",
+			value:    target
+			writable: true
+		)
 
-	# This allows us to ignore the default browser handling of current target.
-	# The browser has no idea which virtual elements are being delegated too.
-	Object.defineProperty(e, "currentTarget",
-		value:    if e.bubbles then target else undefined
-		writable: true
-	)
-
-	# Dispatch events to registered handlers.
-	while target
-		e.currentTarget = target
-		node            = target[NODE]
-		target          = target.parentNode
-		node?.events[type]?(e)
-		break if e.cancelBubble or not e.bubbles
+		# Dispatch events to registered handlers.
+		while target
+			e.currentTarget = target
+			node            = target[NODE]
+			target          = target.parentNode
+			node?.events[type]?(e)
+			break if e.cancelBubble
 	return
 
 module.exports =
