@@ -36,6 +36,11 @@ Currently this is experimental and should not be used in production.
 npm install tusk
 ```
 
+#### Bower
+```console
+bower install tusk
+```
+
 # Example
 
 ```javascript

@@ -1,0 +1,24 @@
+{
+  "name": "tusk",
+  "version": "0.5.1",
+  "homepage": "https://github.com/DylanPiercey/tusk",
+  "authors": [
+    "pierceydylan@gmail.com <Dylan Piercey>"
+  ],
+  "main": "bin/tusk.js",
+  "keywords": [
+    "dom",
+    "virtual",
+    "react",
+    "tusk",
+    "render",
+    "immstruct",
+    "immutable",
+    "jsx"
+  ],
+  "ignore":[
+    "**/.*",
+    "node_modules",
+    "test"
+  ]
+}

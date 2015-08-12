@@ -4,7 +4,7 @@ Node                     = require("./virtual/node")
 delegator                = require("./delegator")
 
 # Stores the current context for create element. Can be changed via "with".
-renderContext = null
+renderContext = undefined
 
 ###
 # @namespace tusk
@@ -91,10 +91,8 @@ tusk.render = (entity, node)->
 					Client:
 					#{client}
 				""")
-
 		# Bootstrap event listeners if we are in the browser.
 		delegator.init()
-
 	return
 
 ###
@@ -130,8 +128,7 @@ tusk.render = (entity, node)->
 ###
 tusk.with = (context, renderer)->
 	renderContext = context
-	unless (node = renderer?())?.isTusk
-		throw new TypeError("Tusk: with requires a render function that returns a virtual node.")
+	node          = renderer?()
 	renderContext = undefined
 	node
 

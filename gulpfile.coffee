@@ -3,11 +3,14 @@ gulp       = require("gulp")
 header     = require("gulp-header")
 coffee     = require("gulp-cjsx")
 mocha      = require("gulp-mocha")
+uglify     = require("gulp-uglify")
+buffer     = require("vinyl-buffer")
 source     = require("vinyl-source-stream")
 browserify = require("browserify")
 details    = require("./package.json")
 src        = "./src"
 lib        = "./lib"
+bin        = "./bin"
 tests      = "./test"
 
 try fs.mkdirSync(__dirname + lib)
@@ -30,6 +33,24 @@ gulp.task("build", ->
 # Build js for browser tests.
 ###
 gulp.task "build-browser", ->
+	browserify("./src/index", extensions: [".coffee"])
+		.transform("coffee-reactify")
+		.bundle()
+		.pipe(source("tusk.js"))
+		.pipe(buffer())
+		.pipe(uglify())
+		.pipe(gulp.dest(bin))
+		.on("error", (err)->
+			return unless err
+			console.log(err.toString())
+			console.log(err.stack)
+			@emit("end")
+		)
+
+###
+# Build js for browser tests.
+###
+gulp.task "build-test", ->
 	browserify(
 		entries: ("#{tests}/#{file}" for file in fs.readdirSync("./test") when file.endsWith("Test.coffee"))
 		extensions: [".coffee"]
@@ -39,7 +60,7 @@ gulp.task "build-browser", ->
 		.transform("coffee-reactify")
 		.bundle()
 		.pipe(source("run.js"))
-		.pipe(gulp.dest("#{tests}"))
+		.pipe(gulp.dest(tests))
 		.on("error", (err)->
 			return unless err
 			console.log(err.toString())
