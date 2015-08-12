@@ -33,7 +33,7 @@ gulp.task("build", ->
 # Build js for browser tests.
 ###
 gulp.task "build-browser", ->
-	browserify("./src/index", extensions: [".coffee"])
+	browserify("./src/index", extensions: [".coffee"], standalone: "tusk")
 		.transform("coffee-reactify")
 		.bundle()
 		.pipe(source("tusk.js"))
