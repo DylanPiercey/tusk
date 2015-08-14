@@ -6,6 +6,7 @@
     "pierceydylan@gmail.com <Dylan Piercey>"
   ],
   "main": "bin/tusk.js",
+  "license": "MIT",
   "keywords": [
     "dom",
     "virtual",

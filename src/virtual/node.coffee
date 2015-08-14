@@ -14,12 +14,12 @@ Text                                  = require("./text")
 # @returns {Object}
 # @private
 ###
-normalizeChildren = (cur, namespaceURI, result, acc)->
-	if cur instanceof Array
+normalizeChildren = (cur = " ", namespaceURI, result, acc)->
+	if cur.constructor is Array
 		normalizeChildren(child, namespaceURI, result, acc + i) for child, i in cur
 	else
 		# Cast non-nodes to text.
-		cur = new Text(cur) unless cur and cur.isTusk
+		cur = new Text(cur) unless cur.isTusk
 		# Set chilld position in node list.
 		cur.index = acc
 		# Inherit parents namespace.

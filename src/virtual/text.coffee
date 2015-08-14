@@ -8,7 +8,7 @@
 # @param {String} value - the nodeValue for the text node.
 # @private
 ###
-Text = (value = " ")->
+Text = (value)->
 	@value = String(value)
 	return
 
@@ -46,8 +46,9 @@ Text::mount = (elem)->
 ###
 Text::create = ->
 	# Reuse previously rendered nodes.
-	return @_elem if @_elem
-	@_elem = document.createTextNode(@value)
+	@_elem          ?= document.createTextNode(@value)
+	@_elem.nodeValue = @value unless @_elem.nodeValue is @value
+	@_elem
 
 ###
 # @memberOf Text
@@ -66,10 +67,9 @@ Text::update = (updated)->
 	if updated.constructor is Text
 		updated._elem = @_elem
 		# If we got a different textnode then we do a value update.
-		if @value isnt updated.value
-			@_elem.nodeValue = updated.value
-	else
-		@_elem.parentNode.replaceChild(updated.create(), @_elem)
+		@_elem.nodeValue = updated.value if @value isnt updated.value
+
+	else @_elem.parentNode.replaceChild(updated.create(), @_elem)
 
 	updated
 

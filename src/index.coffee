@@ -35,7 +35,7 @@ tusk = (type, props)->
 			new Node(type, props, children)
 		when "function"
 			node = type(props, children, renderContext)
-			node.owner = type if node instanceof Node
+			node.owner = type if node?.constructor is Node
 			node
 		else
 			throw new TypeError("Tusk: Invalid virtual node type.")
