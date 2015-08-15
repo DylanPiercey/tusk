@@ -7,6 +7,22 @@ delegator                = require("./delegator")
 renderContext = undefined
 
 ###
+# @description
+# Simply utilty to ensure that a render function (owner) is attached to all children.
+#
+# @param {(Array|Node)} node
+# @param {Function} owner
+# @returns {*}
+# @private
+###
+attachOwner = (node, owner)->
+	return unless node
+	switch node.constructor
+		when Array then attachOwner(child, owner) for child in node
+		when Node then node.owner = owner; node
+		else node
+			
+###
 # @namespace tusk
 # @description
 # Utility to create virtual elements.
@@ -31,14 +47,9 @@ tusk = (type, props)->
 
 	# Create node based on type.
 	switch typeof type
-		when "string"
-			new Node(type, props, children)
-		when "function"
-			node = type(props, children, renderContext)
-			node.owner = type if node?.constructor is Node
-			node
-		else
-			throw new TypeError("Tusk: Invalid virtual node type.")
+		when "string" then new Node(type, props, children)
+		when "function" then attachOwner(type(props, children, renderContext), type)
+		else throw new TypeError("Tusk: Invalid virtual node type.")
 
 ###
 # @static
