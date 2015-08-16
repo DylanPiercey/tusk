@@ -16,6 +16,7 @@ module.exports =
 			.replace(/>/g, "&gt;")
 
 	###
+	# @description
 	# Utility that recursively flattens an array.
 	#
 	# @param {Array} arr - The array to flatten.

@@ -1,7 +1,7 @@
 Node                     = require("./virtual/node")
+delegator                = require("./delegator")
 { NODE }                 = require("./constants")
 { flattenInto, getDiff } = require("./util")
-delegator                = require("./delegator")
 
 # Stores the current context for create element. Can be changed via "with".
 renderContext = undefined
@@ -18,10 +18,10 @@ renderContext = undefined
 attachOwner = (node, owner)->
 	return unless node
 	switch node.constructor
-		when Array then attachOwner(child, owner) for child in node
 		when Node then node.owner = owner; node
+		when Array then attachOwner(child, owner) for child in node
 		else node
-			
+
 ###
 # @namespace tusk
 # @description

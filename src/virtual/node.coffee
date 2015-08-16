@@ -7,31 +7,31 @@ Text                                  = require("./text")
 # @description
 # Utility to recursively flatten a nested array into a keyed node list and cast non-nodes to Text.
 #
+# @param {Node} node
 # @param {(Array|Node)} cur
-# @param {String} namespaceURI
-# @param {Object} result
 # @param {Number} acc
 # @returns {Object}
 # @private
 ###
-normalizeChildren = (cur = " ", namespaceURI, result, acc)->
+normalizeChildren = (node, cur = " ", acc = 0)->
 	if cur.constructor is Array
-		normalizeChildren(child, namespaceURI, result, acc + i) for child, i in cur
+		normalizeChildren(node, child, acc + i) for child, i in cur
 	else
 		# Cast non-nodes to text.
 		cur = new Text(cur) unless cur.isTusk
+		# Inherit parents namespace.
+		cur.namespaceURI ?= node.namespaceURI
 		# Set chilld position in node list.
 		cur.index = acc
-		# Inherit parents namespace.
-		cur.namespaceURI ?= namespaceURI
 		# Children are indexed by there position, or the provided key.
-		result[cur.key or acc] = cur
-	return result
+		node.children[cur.key or acc] = cur
+	return
 
 ###
 # @class Node
 # @description
 # Creates a virtual dom node that can be later transformed into a real node and updated.
+#
 # @param {String} type - The tagname of the element.
 # @param {Object} props - An object containing events and attributes.
 # @param {Array} children - The child nodeList for the element.
@@ -61,10 +61,7 @@ Node = (@type, props, children)->
 			else @events[key[2..].toLowerCase()] = val
 
 	# Check if we should append children.
-	unless @innerHTML? or @type in SELF_CLOSING
-		# Set child nodes.
-		normalizeChildren(children, @namespaceURI, @children, 0)
-
+	normalizeChildren(@, children) unless @innerHTML? or @type in SELF_CLOSING
 	return
 ###
 # @memberOf Node
