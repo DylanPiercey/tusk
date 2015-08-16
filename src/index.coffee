@@ -136,7 +136,7 @@ tusk.render = (entity, node)->
 ###
 tusk.with = (context, renderer)->
 	renderContext = context
-	node          = renderer?()
+	node          = renderer?(context)
 	renderContext = undefined
 	node
 
