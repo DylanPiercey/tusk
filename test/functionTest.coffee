@@ -59,9 +59,6 @@ describe "#{details.name}@#{details.version} - Function", ->
 					{ message } : { cursor.get('i') }
 				</button>
 
-			MyCounter.onMount = (e)->
-
-
 			document.body.innerHTML = <MyCounter message="Times clicked" cursor={ struct.cursor() }/>
 
 			render = ->

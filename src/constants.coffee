@@ -1,26 +1,23 @@
 module.exports =
 	###
+	# @private
 	# @description
 	# The key used to attach data to the dom.
-	#
-	# @private
 	###
 	NODE: "__node__"
 	###
+	# @private
 	# @description
 	# List of supported html namespaces.
-	#
-	# @private
 	###
 	NAMESPACES:
 		HTML:    "http://www.w3.org/1999/xhtml"
 		MATH_ML: "http://www.w3.org/1998/Math/MathML"
 		SVG:     "http://www.w3.org/2000/svg"
 	###
+	# @private
 	# @description
 	# List of html tags that are self closing.
-	#
-	# @private
 	###
 	SELF_CLOSING: [
 		"area",
@@ -41,10 +38,9 @@ module.exports =
 		"wbr"
 	]
 	###
+	# @private
 	# @description
 	# List of events that are supported by tusk.
-	#
-	# @private
 	###
 	EVENTS: [
 		"animationend",

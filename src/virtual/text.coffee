@@ -1,34 +1,32 @@
 { escapeHTML } = require("../util")
 
 ###
+# @private
 # @class Text
 # @description
 # Creates a virtual text node that can be later transformed into a real node and updated.
 #
 # @param {String} value - the nodeValue for the text node.
-# @private
 ###
 Text = (value)->
 	@value = String(value)
 	return
 
 ###
-# @memberOf Text
+# @private
+# @constant
 # @description
 # Mark instances as a tusk nodes.
 #
-# @constant
-# @private
 ###
 Text::isTusk = true
 
 ###
-# @memberOf Text
+# @private
 # @description
 # Ensures that the provided element's node value matches the virtual value.
 #
 # @param {HTMLEntity} elem
-# @private
 ###
 Text::mount = (elem)->
 	@_elem = { nodeValue } = elem
@@ -37,12 +35,11 @@ Text::mount = (elem)->
 	return
 
 ###
-# @memberOf Text
+# @private
 # @description
 # Creates a real text node out of the virtual text node and returns it.
 #
 # @returns {HTMLEntity}
-# @private
 ###
 Text::create = ->
 	# Reuse previously rendered nodes.
@@ -51,13 +48,12 @@ Text::create = ->
 	@_elem
 
 ###
-# @memberOf Text
+# @private
 # @description
 # Given a different virtual node it will compare the nodes an update the real node accordingly.
 #
 # @param {(Node|Text)} updated
 # @returns {(Node|Text)}
-# @private
 ###
 Text::update = (updated)->
 	# If we got the same virtual node then we treat it as a no op.
@@ -74,17 +70,14 @@ Text::update = (updated)->
 	updated
 
 ###
-# @memberOf Text
+# @private
 # @description
 # Removes the current text node from it's parent.
-#
-# @private
 ###
 Text::remove = ->
 	@_elem.parentNode.removeChild(@_elem)
 
 ###
-# @memberOf Text
 # @description
 # Generate a valid escaped html string for the virtual text node.
 #

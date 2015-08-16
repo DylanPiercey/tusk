@@ -1,11 +1,11 @@
 { NODE, EVENTS } = require("./constants")
 
 ###
+# @private
 # @description
 # Handle and delegate global events.
 #
 # @param {Event} e - The DOM event being handled.
-# @private
 ###
 handleEvent = (e)->
 	{ target, type } = e
@@ -52,10 +52,9 @@ module.exports =
 		return
 
 	###
+	# @private
 	# @description
 	# Attach all event listeners to the dom for delegation.
-	#
-	# @private
 	###
 	init: ->
 		return if document.__tusk

@@ -4,6 +4,7 @@
 Text                                  = require("./text")
 
 ###
+# @private
 # @description
 # Utility to recursively flatten a nested array into a keyed node list and cast non-nodes to Text.
 #
@@ -11,7 +12,6 @@ Text                                  = require("./text")
 # @param {(Array|Node)} cur
 # @param {Number} acc
 # @returns {Object}
-# @private
 ###
 normalizeChildren = (node, cur = " ", acc = 0)->
 	if cur.constructor is Array
@@ -28,6 +28,7 @@ normalizeChildren = (node, cur = " ", acc = 0)->
 	return
 
 ###
+# @private
 # @class Node
 # @description
 # Creates a virtual dom node that can be later transformed into a real node and updated.
@@ -35,7 +36,6 @@ normalizeChildren = (node, cur = " ", acc = 0)->
 # @param {String} type - The tagname of the element.
 # @param {Object} props - An object containing events and attributes.
 # @param {Array} children - The child nodeList for the element.
-# @private
 ###
 Node = (@type, props, children)->
 	# Set implicit namespace for element.
@@ -64,22 +64,19 @@ Node = (@type, props, children)->
 	normalizeChildren(@, children) unless @innerHTML? or @type in SELF_CLOSING
 	return
 ###
-# @memberOf Node
+# @private
+# @constant
 # @description
 # Mark instances as a tusk nodes.
-#
-# @constant
-# @private
 ###
 Node::isTusk = true
 
 ###
-# @memberOf Node
+# @private
 # @description
 # Bootstraps event listeners and children from a virtual node.
 #
 # @param {HTMLEntity} elem
-# @private
 ###
 Node::mount = (elem)->
 	@_elem = { childNodes } = elem
@@ -90,12 +87,11 @@ Node::mount = (elem)->
 	return
 
 ###
-# @memberOf Node
+# @private
 # @description
 # Creates a real node out of the virtual node and returns it.
 #
 # @returns {HTMLEntity}
-# @private
 ###
 Node::create = ->
 	# Create a real dom element or reuse existing.
@@ -115,13 +111,12 @@ Node::create = ->
 	elem
 
 ###
-# @memberOf Node
+# @private
 # @description
 # Given a different virtual node it will compare the nodes an update the real node accordingly.
 #
 # @param {Node} updated
 # @returns {Node}
-# @private
 ###
 Node::update = (updated)->
 	# If we got the same virtual node then we treat it as a no op.
@@ -154,11 +149,9 @@ Node::update = (updated)->
 	updated
 
 ###
-# @memberOf Node
+# @private
 # @description
 # Removes the current node from it's parent.
-#
-# @private
 ###
 Node::remove = ->
 	dispatch("dismount", @_elem)
@@ -166,7 +159,6 @@ Node::remove = ->
 	@_elem.parentNode.removeChild(@_elem)
 
 ###
-# @memberOf Node
 # @description
 # Generate valid html for the virtual node.
 #

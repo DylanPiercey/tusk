@@ -1,11 +1,11 @@
 module.exports =
 	###
+	# @private
 	# @description
 	# Escape special characters in the given string of html.
 	#
 	# @param {String} html - the html to escape.
 	# @returns {String}
-	# @private
 	###
 	escapeHTML: (html)->
 		String(html)
@@ -16,13 +16,13 @@ module.exports =
 			.replace(/>/g, "&gt;")
 
 	###
+	# @private
 	# @description
 	# Utility that recursively flattens an array.
 	#
 	# @param {Array} arr - The array to flatten.
 	# @param {Array} acc - The resulting array.
 	# @returns {Array}
-	# @private
 	###
 	flattenInto: flattenInto = (arr, acc)->
 		for item in arr
@@ -31,13 +31,13 @@ module.exports =
 		acc
 
 	###
+	# @private
 	# @description
 	# Returns a chunk surrounding the difference between two strings, useful for debugging.
 	#
 	# @param {String} a
 	# @param {String} b
 	# @returns {Array<String>}
-	# @private
 	###
 	getDiff: (a, b)->
 		break for char, i in a when char isnt b[i]
@@ -46,13 +46,13 @@ module.exports =
 		[a[start...Math.min(end, a.length)], b[start...Math.min(end, b.length)]]
 
 	###
+	# @private
 	# @description
 	# Utility that will update or set a given virtual nodes attributes.
 	#
 	# @param {HTMLEntity} elem - The entity to update.
 	# @param {Object} prev - The previous attributes.
 	# @param {Object} next - The updated attributes.
-	# @private
 	###
 	setAttrs: (elem, prev, next)->
 		return if prev is next
@@ -63,13 +63,13 @@ module.exports =
 		return
 
 	###
+	# @private
 	# @description
 	# Utility that will update or set a given virtual nodes children.
 	#
 	# @param {HTMLEntity} elem - The entity to update.
 	# @param {Object} prev - The previous children.
 	# @param {Object} next - The updated children.
-	# @private
 	###
 	setChildren: (elem, prev, next)->
 		return if prev is next
