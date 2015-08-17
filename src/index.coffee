@@ -13,12 +13,16 @@ renderContext = undefined
 #
 # @param {(Array|Node)} node
 # @param {Function} owner
+# @param {Object|Null} props
 # @returns {*}
 ###
-attachOwner = (node, owner)->
+attachOwner = (node, owner, props)->
 	return unless node
 	switch node.constructor
-		when Node then node.owner = owner; node
+		when Node
+			node.owner = owner
+			node.key   = props.key if props?.key
+			node
 		when Array then attachOwner(child, owner) for child in node
 		else node
 
@@ -48,7 +52,7 @@ tusk = (type, props)->
 	# Create node based on type.
 	switch typeof type
 		when "string" then new Node(type, props, children)
-		when "function" then attachOwner(type(props, children, renderContext), type)
+		when "function" then attachOwner(type(props, children, renderContext), type, props)
 		else throw new TypeError("Tusk: Invalid virtual node type.")
 
 ###
