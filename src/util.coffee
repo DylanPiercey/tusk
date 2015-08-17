@@ -57,7 +57,9 @@ module.exports =
 	setAttrs: (elem, prev, next)->
 		return if prev is next
 		# Append new attrs.
-		elem.setAttribute(key, val) for key, val of next when val? and val isnt prev[key]
+		for key, val of next when val isnt prev[key]
+			if not val? or val is false then elem.removeAttribute(key)
+			else elem.setAttribute(key, val)
 		# Remove old attrs.
 		elem.removeAttribute(key) for key of prev when not key of next
 		return
