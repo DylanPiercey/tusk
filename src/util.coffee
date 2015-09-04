@@ -24,9 +24,9 @@ module.exports =
 	# @param {Array} acc - The resulting array.
 	# @returns {Array}
 	###
-	flattenInto: flattenInto = (arr, acc)->
+	flatten: flatten = (arr, acc = [])->
 		for item in arr
-			if item instanceof Array then flattenInto(item, acc)
+			if item?.constructor is Array then flatten(item, acc)
 			else acc.push(item)
 		acc
 
@@ -56,12 +56,15 @@ module.exports =
 	###
 	setAttrs: (elem, prev, next)->
 		return if prev is next
+
 		# Append new attrs.
 		for key, val of next when val isnt prev[key]
-			if not val? or val is false then elem.removeAttribute(key)
-			else elem.setAttribute(key, val)
+			elem.setAttribute(key, val)
+
 		# Remove old attrs.
-		elem.removeAttribute(key) for key of prev when not key of next
+		for key of prev when key not of next
+			elem.removeAttribute(key)
+
 		return
 
 	###
@@ -75,6 +78,7 @@ module.exports =
 	###
 	setChildren: (elem, prev, next)->
 		return if prev is next
+
 		# Update new or existing nodes.
 		for key, child of next
 			# Attempt to update an existing node.
@@ -88,5 +92,7 @@ module.exports =
 			elem.insertBefore(child._elem, elem.childNodes[child.index])
 
 		# Remove old nodes
-		child.remove() for key, child of prev when key not of next
+		for key, child of prev when key not of next
+			child.remove()
+
 		return

@@ -57,11 +57,15 @@ Node = (@type, props, children)->
 
 		# Separate attrs from events.
 		for key, val of props
-			unless key[0...2] is "on" then @attrs[key] = val
-			else @events[key[2..].toLowerCase()] = val
+			if key[0...2] is "on"
+				@events[key[2..].toLowerCase()] = val
+			else if val? and val isnt false
+				@attrs[key] = val
 
 	# Check if we should append children.
-	normalizeChildren(@, children) unless @innerHTML? or @type in SELF_CLOSING
+	unless @innerHTML? or @type in SELF_CLOSING
+		normalizeChildren(@, children)
+
 	return
 ###
 # @private

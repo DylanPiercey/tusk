@@ -1,7 +1,7 @@
-Node                     = require("./virtual/node")
-delegator                = require("./delegator")
-{ NODE }                 = require("./constants")
-{ flattenInto, getDiff } = require("./util")
+Node                 = require("./virtual/node")
+delegator            = require("./delegator")
+{ NODE }             = require("./constants")
+{ flatten, getDiff } = require("./util")
 
 # Stores the current context for create element. Can be changed via "with".
 renderContext = undefined
@@ -47,7 +47,7 @@ tusk = (type, props)->
 	len           = Math.max(arguments.length - 2, 0)
 	children      = new Array(len)
 	children[len] = arguments[len + 2] while len--
-	children      = flattenInto(children, [])
+	children      = flatten(children)
 
 	# Create node based on type.
 	switch typeof type
@@ -139,8 +139,10 @@ tusk.render = (entity, node)->
 # @returns {(Node|Text)}
 ###
 tusk.with = (context, renderer)->
+	unless typeof renderer is "function"
+		throw new TypeError("Tusk: renderer should be a function.")
 	renderContext = context
-	node          = renderer?(context)
+	node          = renderer(context)
 	renderContext = undefined
 	node
 
