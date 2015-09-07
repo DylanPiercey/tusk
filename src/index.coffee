@@ -4,27 +4,10 @@ delegator            = require("./delegator")
 { flatten, getDiff } = require("./util")
 
 # Stores the current context for create element. Can be changed via "with".
-renderContext = undefined
+_context = undefined
 
-###
-# @private
-# @description
-# Simply utilty to ensure that a render function (owner) is attached to all children.
-#
-# @param {(Array|Node)} node
-# @param {Function} owner
-# @param {Object|Null} props
-# @returns {*}
-###
-attachOwner = (node, owner, props)->
-	return unless node
-	switch node.constructor
-		when Node
-			node.owner = owner
-			node.key   = props.key if props?.key
-			node
-		when Array then attachOwner(child, owner) for child in node
-		else node
+# Stores the current render function and props.
+_owner = undefined
 
 ###
 # @namespace tusk
@@ -51,8 +34,12 @@ tusk = (type, props)->
 
 	# Create node based on type.
 	switch typeof type
-		when "string" then new Node(type, props, children)
-		when "function" then attachOwner(type(props, children, renderContext), type, props)
+		when "string" then new Node(type, _owner, props, children)
+		when "function"
+			_owner = type
+			node   = type(props, children, _context)
+			_owner = undefined
+			node
 		else throw new TypeError("Tusk: Invalid virtual node type.")
 
 ###
@@ -141,9 +128,9 @@ tusk.render = (entity, node)->
 tusk.with = (context, renderer)->
 	unless typeof renderer is "function"
 		throw new TypeError("Tusk: renderer should be a function.")
-	renderContext = context
-	node          = renderer(context)
-	renderContext = undefined
+	_context = context
+	node     = renderer(context)
+	_context = undefined
 	node
 
 module.exports = tusk.default = tusk

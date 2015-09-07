@@ -34,10 +34,11 @@ normalizeChildren = (node, cur = " ", acc = 0)->
 # Creates a virtual dom node that can be later transformed into a real node and updated.
 #
 # @param {String} type - The tagname of the element.
+# @param {Object} owner - Information about the renderer of this node.
 # @param {Object} props - An object containing events and attributes.
 # @param {Array} children - The child nodeList for the element.
 ###
-Node = (@type, props, children)->
+Node = (@type, @owner, props, children)->
 	# Set implicit namespace for element.
 	@namespaceURI = (
 		if @type is "svg" then NAMESPACES.SVG
