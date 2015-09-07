@@ -79,6 +79,7 @@ tusk.render = (entity, node)->
 		# Attempt to see if we can bootstrap off of existing dom.
 		if curHTML is prevHTML then node.mount(entity)
 		else
+			entity[NODE] = node
 			entity.parentNode.replaceChild(node.create(), entity)
 			if prevHTML?
 				[server, client] = getDiff(prevHTML, curHTML)
