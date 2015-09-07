@@ -1,6 +1,6 @@
 {
   "name": "tusk",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "A slim virtual dom implementation for immutable structures.",
   "author": "Dylan Piercey <pierceydylan@gmail.com>",
   "main": "lib/index.js",
@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "browserify": "^10.2.4",
+    "bundle-collapser": "^1.2.1",
     "coffee-react": "^3.2.0",
     "coffee-reactify": "^3.0.0",
     "gulp": "^3.8.11",

@@ -35,6 +35,7 @@ gulp.task("build", ->
 gulp.task "build-browser", ->
 	browserify("./src/index", extensions: [".coffee"], standalone: "tusk")
 		.transform("coffee-reactify")
+		.plugin("bundle-collapser/plugin")
 		.bundle()
 		.pipe(source("tusk.js"))
 		.pipe(buffer())
