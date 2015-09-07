@@ -1,17 +1,17 @@
-fs         = require("fs")
-gulp       = require("gulp")
-header     = require("gulp-header")
-coffee     = require("gulp-cjsx")
-mocha      = require("gulp-mocha")
-uglify     = require("gulp-uglify")
-buffer     = require("vinyl-buffer")
-source     = require("vinyl-source-stream")
-browserify = require("browserify")
-details    = require("./package.json")
-src        = "./src"
-lib        = "./lib"
-bin        = "./bin"
-tests      = "./test"
+fs            = require("fs")
+gulp          = require("gulp")
+header        = require("gulp-header")
+coffee        = require("gulp-cjsx")
+mocha         = require("gulp-mocha")
+uglify        = require("gulp-uglify")
+buffer        = require("vinyl-buffer")
+source        = require("vinyl-source-stream")
+browserify    = require("browserify")
+details       = require("./package.json")
+src           = "./src"
+lib           = "./lib"
+bin           = "./bin"
+tests         = "./test"
 
 try fs.mkdirSync(__dirname + lib)
 
@@ -39,7 +39,24 @@ gulp.task "build-browser", ->
 		.bundle()
 		.pipe(source("tusk.js"))
 		.pipe(buffer())
-		.pipe(uglify())
+		.pipe(uglify(
+			mangle:   true
+			compress:
+				unused:       true
+				sequences:    true
+				properties:   true
+				dead_code:    true
+				conditionals: true
+				comparisons:  true
+				evaluate:     true
+				booleans:     true
+				loops:        true
+				if_return:    true
+				join_vars:    true
+				cascade:      true
+				drop_console: true
+				screw_ie8:    true
+		))
 		.pipe(gulp.dest(bin))
 		.on("error", (err)->
 			return unless err
