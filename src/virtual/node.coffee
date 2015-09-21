@@ -21,7 +21,7 @@ normalizeChildren = (node, cur = " ", acc = 0)->
 		cur = new Text(cur) unless cur.isTusk
 		# Inherit parents namespace.
 		cur.namespaceURI ?= node.namespaceURI
-		# Set chilld position in node list.
+		# Set child position in node list.
 		cur.index = acc
 		# Children are indexed by there position, or the provided key.
 		node.children[cur.key or acc] = cur
@@ -94,6 +94,16 @@ Node::mount = (elem)->
 ###
 # @private
 # @description
+# Triggers dismount on this node and all of its children.
+###
+Node::dismount = ->
+	dispatch("dismount", @_elem)
+	child.dismount?() for key, child of @children
+	return
+
+###
+# @private
+# @description
 # Creates a real node out of the virtual node and returns it.
 #
 # @returns {HTMLEntity}
@@ -159,8 +169,7 @@ Node::update = (updated)->
 # Removes the current node from it's parent.
 ###
 Node::remove = ->
-	dispatch("dismount", @_elem)
-	child.remove() for key, child of @children
+	@dismount()
 	@_elem.parentNode.removeChild(@_elem)
 
 ###
