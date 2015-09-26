@@ -94,6 +94,25 @@ describe "#{details.name}@#{details.version} - Node", ->
 			node = node.update(<span test={ 2 }>updated</span>)
 			assert.equal(parent.innerHTML, '<span test="2">updated</span>')
 
+		it "should not update ignored nodes", ->
+			parent = document.createElement("div")
+			node   = <div ignore test={ 1 }>content</div>
+			parent.appendChild(node.create())
+
+			assert.equal(parent.innerHTML, '<div test="1">content</div>')
+
+			# Update tag name.
+			node = node.update(<span test={ 1 }>content</span>)
+			assert.equal(parent.innerHTML, '<div test="1">content</div>')
+
+			# Update attrs.
+			node = node.update(<span test={ 2 }>content</span>)
+			assert.equal(parent.innerHTML, '<div test="1">content</div>')
+
+			# Update children.
+			node = node.update(<span test={ 2 }>updated</span>)
+			assert.equal(parent.innerHTML, '<div test="1">content</div>')
+
 		it "should keep track of keyed nodes", ->
 			parent = document.createElement("div")
 			node   = (

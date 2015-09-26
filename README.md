@@ -130,6 +130,8 @@ vNode.toString(); // '<div editable="true">Hello World</div>';
 ---
 
 # Advanced Performance
+
+## Memoization
 In React and many other virtual doms "shouldUpdate" is a common theme for performance.
 Tusk **does not** feature shouldUpdate and opts for a more performant, simpler, and well known approach: **memoization**.
 
@@ -155,6 +157,22 @@ tusk.render(HTMLEntity, <MyOtherDiv/>);
 
 // switch back - reuses existing "MyDiv" dom. (Extremely fast).
 tusk.render(HTMLEntity, <MyDiv/>);
+```
+
+## Stateful Nodes
+Sometimes it makes sense to have full control over the DOM for certain types of components. In Tusk the framework won't fight you and instead provides an attribute for these types of nodes; "ignore".
+
+```javascript
+
+function MyMap (props, children) {
+    return (
+        <div>
+            Map: { props.title }
+            The div below will only be rendered by tusk once, all updates are noops.
+            <div ignore class="google-map" onMount={ confirgureGoogleMap }/>
+        </div>
+    );
+}
 ```
 
 ### Contributions

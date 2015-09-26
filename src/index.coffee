@@ -27,10 +27,14 @@ _owner = undefined
 # @returns {(Node|*)}
 ###
 tusk = (type, props)->
-	len           = Math.max(arguments.length - 2, 0)
-	children      = new Array(len)
-	children[len] = arguments[len + 2] while len--
-	children      = flatten(children)
+	len      = arguments.length - 2
+	children = (
+		if len <= 0 then []
+		else 
+			arr      = new Array(arguments.length - 2)
+			arr[len] = arguments[len + 2] while len--
+			flatten(arr)
+	)
 
 	# Create node based on type.
 	switch typeof type

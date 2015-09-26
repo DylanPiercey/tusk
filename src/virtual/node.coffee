@@ -54,6 +54,7 @@ Node = (@type, @owner, props, children)->
 	if props?
 		# Pull out special props.
 		@key       = props.key; delete props.key
+		@ignore    = "ignore" of props and props.ignore isnt false; delete props.ignore
 		@innerHTML = props.innerHTML; delete props.innerHTML
 
 		# Separate attrs from events.
@@ -136,7 +137,7 @@ Node::create = ->
 Node::update = (updated)->
 	# If we got the same virtual node then we treat it as a no op.
 	# This allows for render memoization.
-	return this if this is updated
+	return this if this is updated or this.ignore
 
 	if @type isnt updated.type
 		# Update type requires a re-render.
