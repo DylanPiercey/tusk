@@ -1,26 +1,25 @@
-fs            = require("fs")
-gulp          = require("gulp")
-header        = require("gulp-header")
-coffee        = require("gulp-cjsx")
-mocha         = require("gulp-mocha")
-uglify        = require("gulp-uglify")
-buffer        = require("vinyl-buffer")
-source        = require("vinyl-source-stream")
-browserify    = require("browserify")
-details       = require("./package.json")
-src           = "./src"
-lib           = "./lib"
-bin           = "./bin"
-tests         = "./test"
-
-try fs.mkdirSync(__dirname + lib)
+fs         = require("fs")
+gulp       = require("gulp")
+header     = require("gulp-header")
+coffee     = require("gulp-cjsx")
+mocha      = require("gulp-mocha")
+uglify     = require("gulp-uglify")
+sourcemaps = require("gulp-sourcemaps")
+buffer     = require("vinyl-buffer")
+source     = require("vinyl-source-stream")
+browserify = require("browserify")
+details    = require("./package.json")
+src        = "./src"
+lib        = "./lib"
+bin        = "./bin"
+tests      = "./test"
 
 ###
 Build all local cs.
 ###
 gulp.task("build", ->
 	gulp.src("#{src}/**/*.coffee")
-		.pipe(coffee(bare: true, join: true).on("error", handleError = (err)->
+		.pipe(coffee(bare: true).on("error", handleError = (err)->
 			console.log(err.toString())
 			console.log(err.stack)
 			this.emit("end")
@@ -33,12 +32,18 @@ gulp.task("build", ->
 # Build js for browser tests.
 ###
 gulp.task "build-browser", ->
-	browserify("./src/index", extensions: [".coffee"], standalone: "tusk")
+	browserify(
+		debug:      true
+		entries:    "./src/index"
+		extensions: [".coffee"]
+		standalone: "tusk"
+	)
 		.transform("coffee-reactify")
 		.plugin("bundle-collapser/plugin")
 		.bundle()
 		.pipe(source("tusk.js"))
 		.pipe(buffer())
+		.pipe(sourcemaps.init(loadMaps: true))
 		.pipe(uglify(
 			mangle:   true
 			compress:
@@ -57,6 +62,7 @@ gulp.task "build-browser", ->
 				drop_console: true
 				screw_ie8:    true
 		))
+		.pipe(sourcemaps.write("."))
 		.pipe(gulp.dest(bin))
 		.on("error", (err)->
 			return unless err

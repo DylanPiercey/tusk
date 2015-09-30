@@ -102,15 +102,15 @@ describe "#{details.name}@#{details.version} - Node", ->
 			assert.equal(parent.innerHTML, '<div test="1">content</div>')
 
 			# Update tag name.
-			node = node.update(<span test={ 1 }>content</span>)
+			node = node.update(<span ignore test={ 1 }>content</span>)
 			assert.equal(parent.innerHTML, '<div test="1">content</div>')
 
 			# Update attrs.
-			node = node.update(<span test={ 2 }>content</span>)
+			node = node.update(<span ignore test={ 2 }>content</span>)
 			assert.equal(parent.innerHTML, '<div test="1">content</div>')
 
 			# Update children.
-			node = node.update(<span test={ 2 }>updated</span>)
+			node = node.update(<span ignore test={ 2 }>updated</span>)
 			assert.equal(parent.innerHTML, '<div test="1">content</div>')
 
 		it "should keep track of keyed nodes", ->

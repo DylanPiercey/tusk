@@ -137,7 +137,11 @@ Node::create = ->
 Node::update = (updated)->
 	# If we got the same virtual node then we treat it as a no op.
 	# This allows for render memoization.
-	return this if this is updated or this.ignore
+	return this if this is updated
+
+	# Support ignored nodes.
+	# never update the node unless the ignored attribute is removed
+	return this if this.ignore and updated.ignore
 
 	if @type isnt updated.type
 		# Update type requires a re-render.

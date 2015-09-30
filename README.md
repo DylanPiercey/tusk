@@ -160,7 +160,7 @@ tusk.render(HTMLEntity, <MyDiv/>);
 ```
 
 ## Stateful Nodes
-Sometimes it makes sense to have full control over the DOM for certain types of components. In Tusk the framework won't fight you and instead provides an attribute for these types of nodes; "ignore".
+Sometimes it makes sense to have full control over the DOM for certain types of components. In Tusk the framework won't fight you and instead provides an attribute for these types of nodes; "ignore". An ignored node will skip updates if the new node also has an "ignore" attribute.
 
 ```javascript
 
