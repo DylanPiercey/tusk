@@ -2,8 +2,8 @@
 assert    = require("assert")
 immstruct = require("immstruct")
 details   = require("../package.json")
-tusk      = require("../src/index")
-delegate  = require("../src/delegator")
+tusk      = require("../lib/index")
+delegate  = require("../lib/delegator")
 
 describe "#{details.name}@#{details.version} - Function", ->
 	require("mocha-jsdom")() if typeof document is "undefined"

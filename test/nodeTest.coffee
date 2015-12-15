@@ -1,9 +1,9 @@
 # @cjsx tusk
 assert         = require("assert")
 details        = require("../package.json")
-tusk           = require("../src/index")
-delegate       = require("../src/delegator")
-{ NAMESPACES } = require("../src/constants")
+tusk           = require("../lib/index")
+delegate       = require("../lib/delegator")
+{ NAMESPACES } = require("../lib/constants")
 
 describe "#{details.name}@#{details.version} - Node", ->
 	require("mocha-jsdom")() if typeof document is "undefined"

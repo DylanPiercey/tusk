@@ -1,7 +1,5 @@
 fs         = require("fs")
 gulp       = require("gulp")
-header     = require("gulp-header")
-coffee     = require("gulp-cjsx")
 mocha      = require("gulp-mocha")
 uglify     = require("gulp-uglify")
 sourcemaps = require("gulp-sourcemaps")
@@ -15,30 +13,14 @@ bin        = "./bin"
 tests      = "./test"
 
 ###
-Build all local cs.
-###
-gulp.task("build", ->
-	gulp.src("#{src}/**/*.coffee")
-		.pipe(coffee(bare: true).on("error", handleError = (err)->
-			console.log(err.toString())
-			console.log(err.stack)
-			this.emit("end")
-		))
-		.pipe(header("/** #{details.name} v#{details.version} https://www.npmjs.com/package/#{details.name} */\n\"use strict\";\n"))
-		.pipe(gulp.dest(lib))
-)
-
-###
 # Build js for browser tests.
 ###
-gulp.task "build-browser", ->
+gulp.task "build", ->
 	browserify(
 		debug:      true
-		entries:    "./src/index"
-		extensions: [".coffee"]
+		entries:    "./lib/index"
 		standalone: "tusk"
 	)
-		.transform("coffee-reactify")
 		.plugin("bundle-collapser/plugin")
 		.bundle()
 		.pipe(source("tusk.js"))
