@@ -12,6 +12,10 @@ describe "#{details.name}@#{details.version} - Function", ->
 	beforeEach -> delegate.init()
 
 	describe "Virtual component", ->
+		it "should test for valid tusk elements", ->
+			assert.equal(tusk.isElement(<div/>), true);
+			assert.equal(tusk.isElement(1), false);
+
 		it "should be able to create", ->
 			ChildComponent = (props, children)->
 				<h1>{ for child, i in children

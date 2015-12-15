@@ -96,6 +96,13 @@ tusk.render(document.body,
 // -> document.body.innerHTML === "<div>Hello World</div>"
 ```
 
++ **isElement(element)** : Tests if given `element` is a tusk virtual element.
+
+
+```javascript
+tusk.isElement(<div/>); // true
+```
+
 + **with(context, renderer)** : Gives all components inside a render function some external `context`.
 
 

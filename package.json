@@ -1,6 +1,6 @@
 {
   "name": "tusk",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "A slim virtual dom implementation for immutable structures.",
   "author": "Dylan Piercey <pierceydylan@gmail.com>",
   "main": "lib/index.js",
@@ -9,7 +9,7 @@
     "precommit": "npm run release",
     "test": "gulp test",
     "build": "gulp build",
-    "release": "gulp test && gulp build && gulp build-browser && gulp build-test"
+    "release": "gulp test && gulp build && gulp build-test"
   },
   "keywords": [
     "dom",
